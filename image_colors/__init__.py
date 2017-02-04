@@ -12,8 +12,12 @@ from .image_average import rectangle_from_results
 from .image_average import results_save_csv
 from .image_average import results_load_csv
 
+major_version = 0
+minor_version = 0
+build_version = 2
+
 __author__ = 'Rhys Hansen'
 __copyright__ = "Copyright 2017, Rhys Hansen"
 __license__ = "MIT"
 __date__ = "2017-1-30"
-__version__ = '0.0.1'
+__version__ = str(major_version) + '.' + str(minor_version) + '.' + str(build_version)

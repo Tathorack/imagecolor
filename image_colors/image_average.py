@@ -1,8 +1,10 @@
 import csv
 import imghdr
+import logging
 import math
 import os
 from multiprocessing import Pool, cpu_count
+
 from PIL import Image
 
 """Copyright © 2017 Rhys Hansen
@@ -25,6 +27,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE."""
 
+logger = logging.getLogger(__name__)
+
 def average_single_image(img, name=None, alpha_threshold=None):
     """Accepts an file path to an image and attempts to open it
     and average the image. Sucess returns in a list with the
@@ -32,50 +36,53 @@ def average_single_image(img, name=None, alpha_threshold=None):
     For the sake of speed the the image will be downsampled to
     100x100 pixels before looping over each pixel.
     """
+    logger.debug("average_single_image called")
     if alpha_threshold is None:
         alpha_threshold = 250
     if name is None:
         name = img.split(os.sep)[-1]
+    logger.debug('Image name: %s', name)
     try:
         im = Image.open(img)
+        logger.debug('Image opened. Dementions %d x %d', im.size[0], im.size[1])
         if im.size[0] > 300 or im.size[1] > 300:
             im = im.resize((100, 100))
+            logger.debug('Image resized to %d x %d', im.size[0], im.size[1])
         grid = im.load()
         pixels = []
+        pixelcount = 0
+        r_total = 0
+        g_total = 0
+        b_total = 0
         for x in range(im.size[0]):
             for y in range(im.size[1]):
-                pixel = grid[x, y]
-                pixels.append(pixel)
-        r = 0
-        g = 0
-        b = 0
-        count = 0
-        for p in range(len(pixels)):
-            """ this try-except checks to see if pixels have
-            transperency and excludes them if they are greater
-            than the alpha_threshold (default=225).
-            """
-            try:
-                if pixels[p][3] > alpha_threshold:
-                    r+=pixels[p][0]
-                    g+=pixels[p][1]
-                    b+=pixels[p][2]
-            except:
-                r+=pixels[p][0]
-                g+=pixels[p][1]
-                b+=pixels[p][2]
-            count += 1
-        r = int(r / count)
-        g = int(g / count)
-        b = int(b / count)
-        imgavg = [name, r, g, b]
-        return imgavg
-    except Exception as e:
-        print(e)
+                currentpx = grid[x, y]
+                try:
+                    """ this try-except checks to see if pixels have
+                    transperency and excludes them if they are greater
+                    than the alpha_threshold (default=225).
+                    """
+                    if currentpx[3] > alpha_threshold:
+                        r_total += currentpx[0]
+                        g_total += currentpx[1]
+                        b_total += currentpx[2]
+                        pixelcount += 1
+                except IndexError:
+                    r_total += currentpx[0]
+                    g_total += currentpx[1]
+                    b_total += currentpx[2]
+                    pixelcount += 1
+        r_avg = int(r_total / pixelcount)
+        g_avg = int(g_total / pixelcount)
+        b_avg = int(b_total / pixelcount)
+        logger.info('average_single_image result: Name=%s, R=%d, G=%d, B=%d')
+        return [name, r_avg, g_avg, b_avg]
+    except Exception:
+        logger.exception('average_single_image Exception', exc_info=True)
     else:
         return None
 
-def average_directory(dirin):
+def average_directory(dir_in):
     """Accepts the path to a directory and then averages the
     images in the directory and then averages all the indivual
     image averages into a directory average. Returns a list
@@ -85,43 +92,46 @@ def average_directory(dirin):
     """
     try:
         cpus = cpu_count()
+        logger.info('Number of CPUs detected. Setting to %d', cpus)
     except(NotImplementedError):
         cpus = 4
+        logger.warning('Number of CPUs not found. Setting default to %s', cpus)
     filepaths = []
     r_total = 0
     b_total = 0
     g_total = 0
-    imgcount = 0
-    dir_name = os.path.normpath(dirin)
+    imagecount = 0
+    dir_name = os.path.normpath(dir_in)
     dir_name = dir_name.split(os.sep)
-    for filename in os.listdir(dirin):
-        filepath = os.path.join(dirin,filename)
+    for filename in os.listdir(dir_in):
+        filepath = os.path.join(dir_in,filename)
         try:
             if imghdr.what(filepath) in ['jpeg','png']:
                 filepaths.append(filepath)
         except(IsADirectoryError):
+            logger.debug('Directory %s found, Skipping', filename)
             pass
     with Pool(cpus) as p:
             results = (p.map(average_single_image, filepaths))
-    try:
-        for result in results:
+    for result in results:
+        try:
             r_total += result[1]
             b_total += result[2]
             g_total += result[3]
-            imgcount += 1
-    except Exception as e:
-        print(e)
-    if imgcount > 0:
-        r_avg = int(r_total/imgcount)
-        g_avg = int(g_total/imgcount)
-        b_avg = int(b_total/imgcount)
+            imagecount += 1
+        except TypeError:
+            logger.debug('Result not vaild. Skipping', exc_info=True)
+            pass
+    if imagecount > 0:
+        r_avg = int(r_total / imagecount)
+        g_avg = int(g_total / imagecount)
+        b_avg = int(b_total / imagecount)
         return([dir_name[-1], r_avg, g_avg, b_avg])
     else:
-        print(("No images in {0} directory successfully averaged")
-            .format(dir_name[-1]))
+        logger.warning("No images in %s directory successfully averaged. Returning None", dir_name[-1])
         return(None)
 
-def results_load_csv(csvin):
+def results_load_csv(csv_in):
     """Accepts the path to a csv file formatted as follows:
     'File or Folder', 'Red', 'Green', 'Blue' parses the file
     line by line skipping the header. Returns a list containing
@@ -129,67 +139,71 @@ def results_load_csv(csvin):
     other than converting the r, g, b colums to ints.
     """
     results = []
-    with open(csvin, "rt") as f:
-        read = csv.reader(f, delimiter=',')
-        for row in read:
+    logger.info('Opening CSV file %s for reading', csv_in.split(os.sep))
+    with open(csv_in, "rt") as f:
+        csv_file = csv.reader(f, delimiter=',')
+        for row in csv_file:
             if row[0] in ['File','Folder','File or Folder']:
-                print('Skipping header')
+                logger.info('Skipping header')
             else:
                 try:
                     row = [row[0], int(row[1]), int(row[2]), int(row[3])]
                     results.append(row)
-                except Exception as e:
-                    print(e)
+                except Exception:
+                    logger.exception('results_load_csv Exception', exc_info=True)
     return(results)
 
-def nested_directory_average(root_folder):
+def nested_directory_average(root_dir):
     """Accepts the path to a directory and walks all the enclosed
     directories calling average_directory for each one that
     contains images. Returns a list with the results of with an
     entry for each directory that was averaged.
     """
-    dpaths = []
-    filtered_dpaths= []
+    filtered_dirs= []
     results = []
-    for dir_path, dir_names, files in os.walk(root_folder):
-        dpaths.append(dir_path)
-    for dpath in dpaths:
-        for fname in os.listdir(dpath):
-            filepath = os.path.join(dpath, fname)
+    sub_dirs = [d[0] for d in os.walk(root_dir)]
+    for current_dir in sub_dirs:
+        for current_file in os.listdir(current_dir):
+            filepath = os.path.join(current_dir, current_file)
             try:
                 if imghdr.what(filepath) in ['jpeg','png']:
-                    filtered_dpaths.append(dpath)
+                    filtered_dirs.append(current_dir)
+                    logger.debug('Image found in directory %s. '
+                        'Appending to filtered directories',
+                        current_dir.split(os.sep))
                     break
             except(IsADirectoryError):
                 pass
-    for dpath in filtered_dpaths:
-        result = average_directory(dpath)
+    for dir_path in filtered_dirs:
+        result = average_directory(dir_path)
         try:
-            if len(result) == 4:
+            if result != None:
                 results.append(result)
-        except:
+        except TypeError:
             pass
     return(results)
 
-def images_to_results(dirin):
+def images_to_results(dir_in):
     """Accepts the path to a directory averages each individual
     image and returns a list with and entry for each image
     successfully averaged.
     """
     try:
         cpus = cpu_count()
+        logger.info('Number of CPUs detected. Setting to %d', cpus)
     except(NotImplementedError):
         cpus = 4
+        logger.warning('Number of CPUs not found. Setting default to %s', cpus)
     images = []
     results = []
-    files = [f for f in os.listdir(dirin)
-        if os.path.isfile(os.path.join(dirin, f))]
+    files = [f for f in os.listdir(dir_in)
+        if os.path.isfile(os.path.join(dir_in, f))]
     for f in files:
-        filepath = os.path.join(dirin, f)
+        filepath = os.path.join(dir_in, f)
         if imghdr.what(filepath) in ['jpeg','png']:
             images.append(filepath)
     with Pool(cpus) as p:
-        results = (p.map(avg_single_img, images))
+        results = (p.map(average_single_image, images))
     return(results)
 
 def line_from_results(results):
@@ -200,7 +214,7 @@ def line_from_results(results):
     be further manipulated or saved as desired.
     """
     if len(results) == 0:
-        print("Nothing in results")
+        logger.error("Nothing in results")
     else:
         im = Image.new("RGB", (len(results), 1),
             "hsl(0, 50%, 50%)")
@@ -220,7 +234,7 @@ def rectangle_from_results(results, aspectratio=None):
     then be further manipulated or saved as desired.
     """
     if len(results) == 0:
-        print("Nothing in results")
+        logger.error("Nothing in results")
     else:
         if aspectratio is None:
             aspectratio = [3,2]
@@ -247,12 +261,13 @@ def results_save_csv(results, csv_out):
     'File or Folder', 'Red', 'Green', 'Blue'
     """
     if len(results) == 0:
-        print("Nothing in results")
+        logger.error("Nothing in results")
+    logger.info('Opening CSV file %s for writing', csv_out.split(os.sep))
     else:
         with open(csv_out, 'w') as f:
-            writer = csv.writer(f)
-            writer.writerow(['File or Folder',
+            csv_file = csv.writer(f)
+            csv_file.writerow(['File or Folder',
                         'Red', 'Green', 'Blue'])
             for r in results:
-                writer.writerow(r)
+                csv_file.writerow(r)
             f.close()
