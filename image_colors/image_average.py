@@ -30,15 +30,16 @@ SOFTWARE."""
 logger = logging.getLogger(__name__)
 
 def average_single_image(img, name=None, alpha_threshold=None):
-    """Accepts an file path to an image and attempts to open it
-    and average the image. Sucess returns in a list with the
-    ["file name",r,g,b] values. Falure returns None.
-    For the sake of speed the the image will be downsampled to
-    100x100 pixels before looping over each pixel.
+    """Accepts an file path to an image and attempts to open it and
+    average the image. For the sake of speed the the image will be
+    downsampled to 100x100 pixels before looping over each pixel.
+    Transperent pixels are excluded if they are more than 10%
+    transperent (Alpha value below 245)
+    return ["file name",r,g,b] or None
     """
     logger.debug("average_single_image called")
     if alpha_threshold is None:
-        alpha_threshold = 250
+        alpha_threshold = 245
     if name is None:
         name = img.split(os.sep)[-1]
     logger.debug('Image name: %s', name)
@@ -85,10 +86,8 @@ def average_single_image(img, name=None, alpha_threshold=None):
 def average_directory(dir_in, name=None):
     """Accepts the path to a directory and then averages the
     images in the directory and then averages all the indivual
-    image averages into a directory average. Returns a list
-    containing ["directory name",r,g,b] if there are images in
-    the directory that were sucussfully averaged.
-    Falure returns None
+    image averages into a directory average.
+    return ["directory name",r,g,b] or None
     """
     try:
         cpus = cpu_count()
@@ -157,8 +156,8 @@ def results_load_csv(csv_in):
 def nested_directory_average(root_dir):
     """Accepts the path to a directory and walks all the enclosed
     directories calling average_directory for each one that
-    contains images. Returns a list with the results of with an
-    entry for each directory that was averaged.
+    contains images.
+    return [["directory name",r,g,b],["directory name",r,g,b]]
     """
     filtered_dirs= []
     results = []
@@ -211,8 +210,8 @@ def line_from_results(results):
     """Accepts a list of results and creates an image that is 1
     pixel tall and the length of the number of results. The
     image contains a pixel of the color of each result in the
-    list of results. Returns a PIL Image object that can then
-    be further manipulated or saved as desired.
+    list of results.
+    return PIL.Image.object
     """
     if len(results) == 0:
         logger.error("Nothing in results")
@@ -231,8 +230,8 @@ def rectangle_from_results(results, aspectratio=None):
     rectangular. The aspect ratio can be set by passing a list
     formated as [16,9] to aspectratio. The default is 3x2.
     The image contains a pixel of the color of each result in
-    the list of results. Returns a PIL Image object that can
-    then be further manipulated or saved as desired.
+    the list of results.
+    return PIL.Image.object
     """
     if len(results) == 0:
         logger.error("Nothing in results")
