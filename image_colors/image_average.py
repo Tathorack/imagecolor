@@ -29,25 +29,33 @@ SOFTWARE."""
 
 logger = logging.getLogger(__name__)
 
-def average_single_image(img, name=None, alpha_threshold=None):
-    """Accepts an file path to an image and attempts to open it and
-    average the image. For the sake of speed the the image will be
-    downsampled to 100x100 pixels before looping over each pixel.
-    Transperent pixels are excluded if they are more than 10%
-    transperent (Alpha value below 245)
+def average_single_image(image, name=None, downsample=True,
+                    max_size=100, alpha_threshold=None):
+    """Averages a single image from a file or file-like object.
+    Arguments
+    image: str
+        path to image or file-like object
+    name: str
+        auto generated from path unless set
+    downsample: bool
+        if downsampling is enabled to speed up iteration
+    max_size: int
+        max length of longest side if downsample == True
+    alpha_threshold: int
+        level at which transperent pixels are excluded from average
     return ["file name",r,g,b] or None
     """
     logger.debug("average_single_image called")
     if alpha_threshold is None:
         alpha_threshold = 245
     if name is None:
-        name = img.split(os.sep)[-1]
+        name = image.split(os.sep)[-1]
     logger.debug('Image name: %s', name)
     try:
-        im = Image.open(img)
+        im = Image.open(image)
         logger.debug('Image opened. Dementions %d x %d', im.size[0], im.size[1])
-        if im.size[0] > 300 or im.size[1] > 300:
-            im = im.resize((100, 100))
+        if (im.size[0] > max_size or im.size[1] > max_size) and downsample == True:
+            im.thumbnail((max_size,max_size))
             logger.debug('Image resized to %d x %d', im.size[0], im.size[1])
         grid = im.load()
         pixels = []
@@ -59,9 +67,9 @@ def average_single_image(img, name=None, alpha_threshold=None):
             for y in range(im.size[1]):
                 currentpx = grid[x, y]
                 try:
-                    """ this try-except checks to see if pixels have
+                    """this try-except checks to see if pixels have
                     transperency and excludes them if they are greater
-                    than the alpha_threshold (default=225).
+                    than the alpha_threshold (default=245).
                     """
                     if currentpx[3] > alpha_threshold:
                         r_total += currentpx[0]
@@ -84,9 +92,12 @@ def average_single_image(img, name=None, alpha_threshold=None):
         return None
 
 def average_directory(dir_in, name=None):
-    """Accepts the path to a directory and then averages the
-    images in the directory and then averages all the indivual
-    image averages into a directory average.
+    """Averages the images in the directory into a directory average.
+    Arguements
+    dir_in: str
+        path to directory
+    name: str
+        auto generated from path unless set
     return ["directory name",r,g,b] or None
     """
     try:
@@ -157,6 +168,9 @@ def nested_directory_average(root_dir):
     """Accepts the path to a directory and walks all the enclosed
     directories calling average_directory for each one that
     contains images.
+    Arguements
+    root_dir: str
+        path to directory
     return [["directory name",r,g,b],["directory name",r,g,b]]
     """
     filtered_dirs= []
@@ -170,7 +184,7 @@ def nested_directory_average(root_dir):
                     filtered_dirs.append(current_dir)
                     logger.debug('Image found in directory %s. '
                         'Appending to filtered directories',
-                        current_dir.split(os.sep))
+                        current_dir.split(os.sep)[-1])
                     break
             except(IsADirectoryError):
                 pass
@@ -187,6 +201,10 @@ def images_to_results(dir_in):
     """Accepts the path to a directory averages each individual
     image and returns a list with and entry for each image
     successfully averaged.
+    Arguements
+    dir_in: str
+        path to directory
+    return [["image name",r,g,b],["image name",r,g,b]]
     """
     try:
         cpus = cpu_count()

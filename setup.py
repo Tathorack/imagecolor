@@ -4,8 +4,14 @@ def readme():
     with open('README.md') as f:
         return f.read()
 
+major_version = 0
+minor_version = 1
+build_version = 0
+
+version = str('{0}.{1}.{2}').format(major_version, minor_version, build_version)
+
 setup(name='image_colors',
-      version='0.0.2',
+      version=version,
       description='Image color extraction',
       long_description=readme(),
       classifiers=[
