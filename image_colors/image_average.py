@@ -75,14 +75,14 @@ def average_single_image(img, name=None, alpha_threshold=None):
         r_avg = int(r_total / pixelcount)
         g_avg = int(g_total / pixelcount)
         b_avg = int(b_total / pixelcount)
-        logger.info('average_single_image result: Name=%s, R=%d, G=%d, B=%d')
+        logger.debug('average_single_image result: Name=%s, R=%d, G=%d, B=%d', name, r_avg, g_avg, b_avg)
         return [name, r_avg, g_avg, b_avg]
     except Exception:
         logger.exception('average_single_image Exception', exc_info=True)
     else:
         return None
 
-def average_directory(dir_in):
+def average_directory(dir_in, name=None):
     """Accepts the path to a directory and then averages the
     images in the directory and then averages all the indivual
     image averages into a directory average. Returns a list
@@ -92,7 +92,7 @@ def average_directory(dir_in):
     """
     try:
         cpus = cpu_count()
-        logger.info('Number of CPUs detected. Setting to %d', cpus)
+        logger.debug('Number of CPUs detected. Setting to %d', cpus)
     except(NotImplementedError):
         cpus = 4
         logger.warning('Number of CPUs not found. Setting default to %s', cpus)
@@ -101,8 +101,9 @@ def average_directory(dir_in):
     b_total = 0
     g_total = 0
     imagecount = 0
-    dir_name = os.path.normpath(dir_in)
-    dir_name = dir_name.split(os.sep)
+    if name is None:
+        dir_name = os.path.normpath(dir_in)
+        dir_name = dir_name.split(os.sep)
     for filename in os.listdir(dir_in):
         filepath = os.path.join(dir_in,filename)
         try:
@@ -139,7 +140,7 @@ def results_load_csv(csv_in):
     other than converting the r, g, b colums to ints.
     """
     results = []
-    logger.info('Opening CSV file %s for reading', csv_in.split(os.sep))
+    logger.info('Opening CSV file %s for reading', csv_in.split(os.sep)[-1])
     with open(csv_in, "rt") as f:
         csv_file = csv.reader(f, delimiter=',')
         for row in csv_file:
@@ -190,7 +191,7 @@ def images_to_results(dir_in):
     """
     try:
         cpus = cpu_count()
-        logger.info('Number of CPUs detected. Setting to %d', cpus)
+        logger.debug('Number of CPUs detected. Setting to %d', cpus)
     except(NotImplementedError):
         cpus = 4
         logger.warning('Number of CPUs not found. Setting default to %s', cpus)
@@ -262,8 +263,8 @@ def results_save_csv(results, csv_out):
     """
     if len(results) == 0:
         logger.error("Nothing in results")
-    logger.info('Opening CSV file %s for writing', csv_out.split(os.sep))
     else:
+        logger.info('Opening CSV file %s for writing', csv_out.split(os.sep)[-1])
         with open(csv_out, 'w') as f:
             csv_file = csv.writer(f)
             csv_file.writerow(['File or Folder',
