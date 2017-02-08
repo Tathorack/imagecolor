@@ -82,12 +82,12 @@ def average(image, name=None, downsample=True, max_size=100, alpha_threshold=Non
         g_avg = int(g_total / pixelcount)
         b_avg = int(b_total / pixelcount)
         logger.debug('average result: Name=%s, R=%d, G=%d, B=%d', name, r_avg, g_avg, b_avg)
-        return [name, r_avg, g_avg, b_avg]
+        return({'name':name, 'red':r_avg, 'green':g_avg, 'blue':b_avg})
     except Exception as e:
         logger.exception('Exception %s', e)
         logger.debug('average Traceback', exc_info=True)
     else:
-        return None
+        return(None)
 
 def average_images(dir_in):
     """Accepts the path to a directory averages each individual
@@ -151,9 +151,9 @@ def directory_average(dir_in, name=None):
             results = (p.map(average, filepaths))
     for result in results:
         try:
-            r_total += result[1]
-            b_total += result[2]
-            g_total += result[3]
+            r_total += result.get('red')
+            b_total += result.get('green')
+            g_total += result.get('blue')
             imagecount += 1
         except TypeError:
             logger.debug('Result not vaild. Skipping', exc_info=True)
@@ -162,7 +162,7 @@ def directory_average(dir_in, name=None):
         r_avg = int(r_total / imagecount)
         g_avg = int(g_total / imagecount)
         b_avg = int(b_total / imagecount)
-        return([dir_name[-1], r_avg, g_avg, b_avg])
+        return({'name':dir_name[-1], 'red':r_avg, 'green':g_avg, 'blue':b_avg})
     else:
         logger.warning("No images in %s directory successfully averaged. Returning None", dir_name[-1])
         return(None)

@@ -53,23 +53,29 @@ def test_average_from_tempfiles():
     test_f = tfile()
     result = ic.average(test_f.name)
     print(result)
-    value = int(os.path.splitext(os.path.splitext(result[0])[0])[0])
-    assert(result == [result[0],value,value,value])
+    value = int(os.path.splitext(os.path.splitext(result.get('name'))[0])[0])
+    assert result.get('red') == value
+    assert result.get('green') == value
+    assert result.get('blue') == value
 
 def test_average_images_from_tempfiles():
     test_d = tdirectory()
     result = ic.average_images(test_d.name)
     print(result)
     for r in result:
-        value = int(os.path.splitext(os.path.splitext(r[0])[0])[0])
-        assert(r == [r[0],value,value,value])
+        value = int(os.path.splitext(os.path.splitext(r.get('name'))[0])[0])
+        assert r.get('red') == value
+        assert r.get('green') == value
+        assert r.get('blue') == value
 
 def test_directory_average_from_tempfiles():
     test_d = tdirectory()
     result = ic.directory_average(test_d.name)
     print(result)
-    value = int(os.path.splitext(os.path.splitext(result[0])[0])[0])
-    assert(result == [result[0],value,value,value])
+    value = int(os.path.splitext(os.path.splitext(result.get('name'))[0])[0])
+    assert result.get('red') == value
+    assert result.get('green') == value
+    assert result.get('blue') == value
 
 def test_nested_directory_average_from_tempfiles():
     test_nd = tdirectories()
@@ -78,5 +84,7 @@ def test_nested_directory_average_from_tempfiles():
     print(result)
     for r in result:
         print(r)
-        value = int(os.path.splitext(os.path.splitext(r[0])[0])[0])
-        assert(r == [r[0],value,value,value])
+        value = int(os.path.splitext(os.path.splitext(r.get('name'))[0])[0])
+        assert r.get('red') == value
+        assert r.get('green') == value
+        assert r.get('blue') == value

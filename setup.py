@@ -4,13 +4,13 @@ def readme():
     with open('README.md') as f:
         return f.read()
 
-major_version = 0
-minor_version = 1
-build_version = 1
+major_version = 1
+minor_version = 0
+build_version = 0
 
 version = '{0}.{1}.{2}'.format(major_version, minor_version, build_version)
 
-setup(name='image_colors',
+setup(name='imagecolor',
       version=version,
       description='Image color extraction',
       long_description=readme(),
@@ -27,7 +27,7 @@ setup(name='image_colors',
       author='Rhys Hansen',
       author_email='rhyshonline@gmail.com',
       license='MIT',
-      packages=['image_colors'],
+      packages=['imagecolor'],
       install_requires=[
           'Pillow',
       ],
