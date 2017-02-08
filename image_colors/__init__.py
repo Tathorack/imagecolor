@@ -14,9 +14,9 @@ from .image_average import results_load_csv
 
 major_version = 0
 minor_version = 1
-build_version = 0
+build_version = 1
 
 __author__ = 'Rhys Hansen'
 __copyright__ = "Copyright 2017, Rhys Hansen"
 __license__ = "MIT"
-__version__ = str('{0}.{1}.{2}').format(major_version, minor_version, build_version)
+__version__ = '{0}.{1}.{2}'.format(major_version, minor_version, build_version)

@@ -86,8 +86,9 @@ def average_single_image(image, name=None, downsample=True,
         b_avg = int(b_total / pixelcount)
         logger.debug('average_single_image result: Name=%s, R=%d, G=%d, B=%d', name, r_avg, g_avg, b_avg)
         return [name, r_avg, g_avg, b_avg]
-    except Exception:
-        logger.exception('average_single_image Exception', exc_info=True)
+    except Exception as e:
+        logger.exception('average_single_image Exception %s', e)
+        logger.debug('average_single_image Traceback', exc_info=True)
     else:
         return None
 
