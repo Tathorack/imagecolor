@@ -1,4 +1,6 @@
 #stdlib
+from io import BytesIO
+
 import os
 import logging
 # import shutil
@@ -20,47 +22,16 @@ formatter = logging.Formatter('%(name)s %(levelname)s: %(message)s')
 ch.setFormatter(formatter)
 logger.addHandler(ch)
 
-@pytest.fixture(scope="module")
-def tfile():
-    value = 127
-    t_file = tempfile.NamedTemporaryFile(suffix='.png', prefix='{}.'.format(value))
-    im = Image.new("RGB", (200, 200), "rgb({0}, {0}, {0})".format(value))
-    print(t_file.name)
-    im.save(t_file.name, format="png")
-    return(t_file)
-
-@pytest.fixture(scope="module")
-def tdirectory():
-    t_directory = tempfile.TemporaryDirectory(prefix='{}.'.format(127))
-    os.chdir(t_directory.name)
-    assert os.listdir(os.getcwd()) == []
-    for value in [0,127,255]:
-        im = Image.new("RGB", (200, 200), "rgb({0}, {0}, {0})".format(value))
-        im.save(os.path.join(t_directory.name, '{}.png'.format(value)), format="png")
-    return(t_directory)
-
-@pytest.fixture(scope="module")
-def tdirectories():
-    t_directory = tempfile.TemporaryDirectory(prefix='{}.'.format(127))
-    for value in [0,127,255]:
-        subpath = tempfile.mkdtemp(prefix='{}.'.format(value),dir=t_directory.name)
-        for num in range(3):
-            im = Image.new("RGB", (200, 200), "rgb({0}, {0}, {0})".format(value))
-            im.save(os.path.join(subpath, '{}.{}.png'.format(value,num)), format="png")
-    return(t_directory)
-
-def test_average_from_tempfiles():
-    test_f = tfile()
-    result = ic.average(test_f.name)
+def test_average_from_tempfiles(tfile):
+    result = ic.average(tfile.name)
     print(result)
     value = int(os.path.splitext(os.path.splitext(result.get('name'))[0])[0])
     assert result.get('red') == value
     assert result.get('green') == value
     assert result.get('blue') == value
 
-def test_average_images_from_tempfiles():
-    test_d = tdirectory()
-    result = ic.average_images(test_d.name)
+def test_average_images_from_tempfiles(tdirectory):
+    result = ic.average_images(tdirectory.name)
     print(result)
     for r in result:
         value = int(os.path.splitext(os.path.splitext(r.get('name'))[0])[0])
@@ -68,19 +39,16 @@ def test_average_images_from_tempfiles():
         assert r.get('green') == value
         assert r.get('blue') == value
 
-def test_directory_average_from_tempfiles():
-    test_d = tdirectory()
-    result = ic.directory_average(test_d.name)
+def test_directory_average_from_tempfiles(tdirectory):
+    result = ic.directory_average(tdirectory.name)
     print(result)
     value = int(os.path.splitext(os.path.splitext(result.get('name'))[0])[0])
     assert result.get('red') == value
     assert result.get('green') == value
     assert result.get('blue') == value
 
-def test_nested_directory_average_from_tempfiles():
-    test_nd = tdirectories()
-    print(test_nd.name)
-    result = ic.nested_directory_average(test_nd.name)
+def test_nested_directory_average_from_tempfiles(tdirectories):
+    result = ic.nested_directory_average(tdirectories.name)
     print(result)
     for r in result:
         print(r)
@@ -88,3 +56,32 @@ def test_nested_directory_average_from_tempfiles():
         assert r.get('red') == value
         assert r.get('green') == value
         assert r.get('blue') == value
+
+def test_results_line_from_tempresults(tresults):
+    imagebytes = BytesIO()
+    line = ic.results_line(tresults)
+    assert line.size[0] == len(tresults)
+    imagebytes = BytesIO()
+    line.save(imagebytes, format="png")
+    imagebytes.seek(0)
+    result = ic.average(imagebytes, name='test')
+    assert result.get('red') == 127
+    assert result.get('green') == 127
+    assert result.get('blue') == 127
+
+def test_results_rectangle_from_tempresults(tresults):
+    imagebytes = BytesIO()
+    line = ic.results_rectangle(tresults)
+    imagebytes = BytesIO()
+    line.save(imagebytes, format="png")
+    imagebytes.seek(0)
+    result = ic.average(imagebytes, name='test')
+    assert result.get('red') in range(0,255)
+    assert result.get('green') in range(0,255)
+    assert result.get('blue') in range(0,255)
+
+def test_csv_save_and_load_from_tempfiles(tresults,tcsv):
+    ic.results_save_csv(tresults, tcsv.name)
+    results = ic.results_load_csv(tcsv.name)
+    print(results)
+    assert tresults == results
