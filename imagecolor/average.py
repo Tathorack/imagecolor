@@ -39,8 +39,8 @@ def average(image, name=None, downsample=True, max_size=100, alpha_threshold=Non
     max_size: int
         max length of longest side if downsample == True
     alpha_threshold: int
-        level at which transperent pixels are excluded from average
-    return ["file name",r,g,b] or None
+        level at which transparent pixels are excluded from average
+    return {'name':name, 'red':r_avg, 'green':g_avg, 'blue':b_avg} or None
     """
     logger.debug("average called")
     if alpha_threshold is None:
@@ -65,7 +65,7 @@ def average(image, name=None, downsample=True, max_size=100, alpha_threshold=Non
                 currentpx = grid[x, y]
                 try:
                     """this try-except checks to see if pixels have
-                    transperency and excludes them if they are greater
+                    transparency and excludes them if they are greater
                     than the alpha_threshold (default=245).
                     """
                     if currentpx[3] > alpha_threshold:
@@ -91,12 +91,13 @@ def average(image, name=None, downsample=True, max_size=100, alpha_threshold=Non
 
 def average_images(dir_in):
     """Accepts the path to a directory averages each individual
-    image and returns a list with and entry for each image
+    image and returns a list with an entry for each image
     successfully averaged.
     Arguements
     dir_in: str
         path to directory
-    return [["image name",r,g,b],["image name",r,g,b]]
+    return [{'name':name, 'red':r_avg, 'green':g_avg, 'blue':b_avg},
+            {'name':name, 'red':r_avg, 'green':g_avg, 'blue':b_avg}]
     """
     try:
         cpus = cpu_count()
@@ -123,7 +124,7 @@ def directory_average(dir_in, name=None):
         path to directory
     name: str
         auto generated from path unless set
-    return ["directory name",r,g,b] or None
+    return {'name':directory, 'red':r_avg, 'green':g_avg, 'blue':b_avg} or None
     """
     try:
         cpus = cpu_count()
@@ -174,7 +175,8 @@ def nested_directory_average(root_dir):
     Arguements
     root_dir: str
         path to directory
-    return [["directory name",r,g,b],["directory name",r,g,b]]
+    return [{'name':directory, 'red':r_avg, 'green':g_avg, 'blue':b_avg},
+            {'name':directory, 'red':r_avg, 'green':g_avg, 'blue':b_avg}]
     """
     filtered_dirs= []
     results = []
