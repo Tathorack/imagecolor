@@ -41,9 +41,9 @@ def results_line(results):
             "hsl(0, 50%, 50%)")
         grid = im.load()
         for x in list(range(im.size[0])):
-            grid[x,0] = (int(results[x][1]),
-                      int(results[x][2]),
-                      int(results[x][3]))
+            grid[x,0] = (int(results[x].get('red')),
+                      int(results[x].get('green')),
+                      int(results[x].get('blue')))
         return(im)
 
 def results_rectangle(results, aspectratio=None):
@@ -65,13 +65,13 @@ def results_rectangle(results, aspectratio=None):
         height = sidelength * aspectratio[1]
         im = Image.new("RGB", (width, height), "hsl(0, 50%, 50%)")
         grid = im.load()
-        c = 0
+        count = 0
         for y in list(range(im.size[1])):
             for x in list(range(im.size[0])):
-                grid[x, y] = (int(results[c][1]),
-                          int(results[c][2]),
-                          int(results[c][3]))
-                c += 1
+                grid[x, y] = (int(results[count].get('red')),
+                          int(results[count].get('green')),
+                          int(results[count].get('blue')))
+                count += 1
         return(im)
 
 def results_save_csv(results, csv_out):
@@ -90,7 +90,8 @@ def results_save_csv(results, csv_out):
             csv_file.writerow(['File or Folder',
                         'Red', 'Green', 'Blue'])
             for r in results:
-                csv_file.writerow(r)
+                csv_line = [r.get('name'), r.get('red'), r.get('green'), r.get('blue')]
+                csv_file.writerow(csv_line)
             f.close()
 
 def results_load_csv(csv_in):
@@ -109,8 +110,9 @@ def results_load_csv(csv_in):
                 logger.info('Skipping header')
             else:
                 try:
-                    row = [row[0], int(row[1]), int(row[2]), int(row[3])]
-                    results.append(row)
+                    dict_line = {'name':row[0], 'red':int(row[1]),
+                             'green':int(row[2]), 'blue':int(row[3])}
+                    results.append(dict_line)
                 except Exception:
                     logger.exception('results_load_csv Exception', exc_info=True)
     return(results)
