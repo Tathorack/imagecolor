@@ -23,8 +23,8 @@ Accepts the path to a directory and walks all the enclosed directories calling *
 * **root_dir** - path to starting directory
 
 ### Future work
-* update import export functions to use dictionary interface
-* add more information to readme
+* add usage examples to readme
+* add information for loadsave functions to readme
 
 ### Tests
 Testing is done with pytest http://docs.pytest.org/en/latest/
