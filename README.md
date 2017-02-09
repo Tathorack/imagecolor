@@ -25,3 +25,8 @@ Accepts the path to a directory and walks all the enclosed directories calling *
 ### Future work
 * update import export functions to use dictionary interface
 * add more information to readme
+
+### Tests
+Testing is done with pytest http://docs.pytest.org/en/latest/
+
+**To run tests** *pytest* **or** *python3 -m pytest test* from the project root directory.
