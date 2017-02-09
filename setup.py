@@ -5,7 +5,7 @@ def readme():
         return f.read()
 
 major_version = 1
-minor_version = 0
+minor_version = 1
 build_version = 0
 
 version = '{0}.{1}.{2}'.format(major_version, minor_version, build_version)
@@ -15,7 +15,7 @@ setup(name='imagecolor',
       description='Image color extraction',
       long_description=readme(),
       classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3',
         'Intended Audience :: Other Audience',
@@ -23,7 +23,7 @@ setup(name='imagecolor',
         'Topic :: Multimedia :: Graphics',
       ],
       keywords='image average color',
-      url='',
+      url='https://github.com/Tathorack/imagecolor',
       author='Rhys Hansen',
       author_email='rhyshonline@gmail.com',
       license='MIT',

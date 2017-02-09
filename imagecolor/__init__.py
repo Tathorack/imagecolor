@@ -10,7 +10,7 @@ from .loadsave import results_save_csv
 from .loadsave import results_load_csv
 
 major_version = 1
-minor_version = 0
+minor_version = 1
 build_version = 0
 
 __author__ = 'Rhys Hansen'
