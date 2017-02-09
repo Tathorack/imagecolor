@@ -1,12 +1,10 @@
-#stdlib
+#!/usr/bin/env python3
+#coding=UTF-8
 from io import BytesIO
-
 import os
 import logging
-# import shutil
 import sys
 import tempfile
-import time
 #installed
 from PIL import Image
 import pytest

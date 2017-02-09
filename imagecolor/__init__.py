@@ -1,4 +1,5 @@
-
+#!/usr/bin/env python3
+#coding=UTF-8
 from .average import average
 from .average import average_images
 from .average import directory_average
@@ -11,7 +12,7 @@ from .loadsave import results_load_csv
 
 major_version = 1
 minor_version = 1
-build_version = 0
+build_version = 1
 
 __author__ = 'Rhys Hansen'
 __copyright__ = "Copyright 2017, Rhys Hansen"

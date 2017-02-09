@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+#coding=UTF-8
 import csv
 import logging
 import math
