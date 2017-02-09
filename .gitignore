@@ -3,3 +3,4 @@ image_colors.egg-info
 dist
 test/test_images
 .cache
+imagecolor.egg-info
