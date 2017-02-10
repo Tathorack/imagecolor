@@ -3,12 +3,12 @@
 from setuptools import setup
 
 def readme():
-    with open('README.md') as f:
+    with open('README.rst') as f:
         return f.read()
 
 major_version = 1
 minor_version = 1
-build_version = 1
+build_version = 2
 
 version = '{0}.{1}.{2}'.format(major_version, minor_version, build_version)
 
