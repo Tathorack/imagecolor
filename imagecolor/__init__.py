@@ -12,7 +12,7 @@ from .loadsave import results_load_csv
 
 major_version = 1
 minor_version = 1
-build_version = 4
+build_version = 5
 
 __author__ = 'Rhys Hansen'
 __copyright__ = "Copyright 2017, Rhys Hansen"
