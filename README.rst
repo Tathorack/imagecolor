@@ -1,7 +1,8 @@
 ========================================
 imagecolors - Extract colors from images
 ========================================
-|version| |github| |python35| |pillow| |license| |downloads| |format|
+
+|version| |github| |python35| |license| |format|
 
 .. |version| image:: https://img.shields.io/pypi/v/imagecolor.svg
     :target: https://pypi.python.org/pypi/imagecolor
@@ -9,10 +10,6 @@ imagecolors - Extract colors from images
     :target: https://www.python.org/
 .. |license| image:: https://img.shields.io/badge/License-MIT-blue.svg
     :target: https://github.com/Tathorack/imagecolor/blob/master/LICENSE.md
-.. |pillow| image:: https://img.shields.io/badge/Pillow-v4.0.0-blue.svg
-    :target: https://pillow.readthedocs.io/en/latest/index.html
-.. |downloads| image:: https://img.shields.io/pypi/dm/imagecolor.svg
-    :target: https://pypi.python.org/pypi/imagecolor
 .. |github| image:: https://img.shields.io/github/tag/Tathorack/imagecolor.svg
    :target: https://github.com/Tathorack/imagecolor
 .. |format| image:: https://img.shields.io/pypi/format/imagecolor.svg
@@ -60,6 +57,8 @@ Future work
 
 Tests
 =====
-Testing is done with `pytest<http://docs.pytest.org/en/latest/>`_
+Testing is done with pytest_
+
+.. _pytest: http://docs.pytest.org/en/latest/
 
 Run with ``pytest`` or ``python3 -m pytest test`` from the project root directory.
