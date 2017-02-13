@@ -161,6 +161,9 @@ def directory_average(dir_in, name=None):
         except TypeError:
             logger.debug('Result not vaild. Skipping', exc_info=True)
             pass
+        except AttributeError:
+            logger.debug('Result not vaild. Skipping', exc_info=True)
+            pass
     if imagecount > 0:
         r_avg = int(r_total / imagecount)
         g_avg = int(g_total / imagecount)
