@@ -5,7 +5,7 @@ from codecs import open
 
 major_version = 1
 minor_version = 1
-build_version = 7
+build_version = 8
 
 version = '{0}.{1}.{2}'.format(major_version, minor_version, build_version)
 
