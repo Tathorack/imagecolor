@@ -86,7 +86,7 @@ def average(image, name=None, downsample=True, max_size=100, alpha_threshold=Non
         logger.debug('average result: Name=%s, R=%d, G=%d, B=%d', name, r_avg, g_avg, b_avg)
         return({'name':name, 'red':r_avg, 'green':g_avg, 'blue':b_avg})
     except Exception as e:
-        logger.exception('Exception %s', e)
+        logger.warning('Exception %s', e)
         logger.debug('average Traceback', exc_info=True)
     else:
         return(None)
