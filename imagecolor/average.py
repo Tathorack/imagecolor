@@ -57,8 +57,8 @@ def average(image, name=None, downsample=True,
         im = Image.open(image)
         logger.debug('Image opened. Dimensions %d x %d',
                      im.size[0], im.size[1])
-        if (im.size[0] > max_size or im.size[1] > max_size)
-        and downsample is True:
+        if ((im.size[0] > max_size or im.size[1] > max_size)
+                and downsample is True):
             im.thumbnail((max_size, max_size))
             logger.debug('Image resized to %d x %d', im.size[0], im.size[1])
         grid = im.load()

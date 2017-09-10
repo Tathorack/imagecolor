@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-#coding=UTF-8
+# coding=UTF-8
 import csv
 import logging
 import math
@@ -29,6 +29,7 @@ SOFTWARE."""
 
 logger = logging.getLogger(__name__)
 
+
 def results_line(results):
     """Accepts a list of results and creates an image that is 1
     pixel tall and the length of the number of results. The
@@ -39,14 +40,14 @@ def results_line(results):
     if len(results) == 0:
         logger.error("Nothing in results")
     else:
-        im = Image.new("RGB", (len(results), 1),
-            "hsl(0, 50%, 50%)")
+        im = Image.new("RGB", (len(results), 1), "hsl(0, 50%, 50%)")
         grid = im.load()
         for x in list(range(im.size[0])):
-            grid[x,0] = (int(results[x].get('red')),
-                      int(results[x].get('green')),
-                      int(results[x].get('blue')))
+            grid[x, 0] = (int(results[x]['red']),
+                          int(results[x]['green']),
+                          int(results[x]['blue']))
         return(im)
+
 
 def results_rectangle(results, aspectratio=None):
     """Accepts a list of results and creates an image that is
@@ -60,9 +61,9 @@ def results_rectangle(results, aspectratio=None):
         logger.error("Nothing in results")
     else:
         if aspectratio is None:
-            aspectratio = [3,2]
+            aspectratio = [3, 2]
         sidelength = int(math.floor(math.sqrt(len(results)
-            / (aspectratio[0] * aspectratio[1]))))
+                         / (aspectratio[0] * aspectratio[1]))))
         width = sidelength * aspectratio[0]
         height = sidelength * aspectratio[1]
         im = Image.new("RGB", (width, height), "hsl(0, 50%, 50%)")
@@ -70,11 +71,12 @@ def results_rectangle(results, aspectratio=None):
         count = 0
         for y in list(range(im.size[1])):
             for x in list(range(im.size[0])):
-                grid[x, y] = (int(results[count].get('red')),
-                          int(results[count].get('green')),
-                          int(results[count].get('blue')))
+                grid[x, y] = (int(results[count]['red']),
+                              int(results[count]['green']),
+                              int(results[count]['blue']))
                 count += 1
         return(im)
+
 
 def results_save_csv(results, csv_out):
     """Accepts the path to a new csv file and a list containing
@@ -86,15 +88,16 @@ def results_save_csv(results, csv_out):
     if len(results) == 0:
         logger.error("Nothing in results")
     else:
-        logger.info('Opening CSV file %s for writing', csv_out.split(os.sep)[-1])
+        logger.info('Opening CSV file %s for writing',
+                    csv_out.split(os.sep)[-1])
         with open(csv_out, 'w') as f:
             csv_file = csv.writer(f)
-            csv_file.writerow(['File or Folder',
-                        'Red', 'Green', 'Blue'])
+            csv_file.writerow(['File or Folder', 'Red', 'Green', 'Blue'])
             for r in results:
-                csv_line = [r.get('name'), r.get('red'), r.get('green'), r.get('blue')]
+                csv_line = [r['name'], r['red'], r['green'], r['blue']]
                 csv_file.writerow(csv_line)
             f.close()
+
 
 def results_load_csv(csv_in):
     """Accepts the path to a csv file formatted as follows:
@@ -108,13 +111,16 @@ def results_load_csv(csv_in):
     with open(csv_in, "rt") as f:
         csv_file = csv.reader(f, delimiter=',')
         for row in csv_file:
-            if row[0] in ['File','Folder','File or Folder']:
+            if row[0] in ['File', 'Folder', 'File or Folder']:
                 logger.info('Skipping header')
             else:
                 try:
-                    dict_line = {'name':row[0], 'red':int(row[1]),
-                             'green':int(row[2]), 'blue':int(row[3])}
+                    dict_line = {'name': row[0],
+                                 'red': int(row[1]),
+                                 'green': int(row[2]),
+                                 'blue': int(row[3])}
                     results.append(dict_line)
                 except Exception:
-                    logger.exception('results_load_csv Exception', exc_info=True)
+                    logger.exception('results_load_csv Exception',
+                                     exc_info=True)
     return(results)
