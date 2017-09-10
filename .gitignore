@@ -1,6 +1,6 @@
 build
 image_colors.egg-info
 dist
-test/test_images
 .cache
+.eggs
 imagecolor.egg-info

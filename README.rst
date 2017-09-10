@@ -61,4 +61,4 @@ Testing is done with pytest_
 
 .. _pytest: http://docs.pytest.org/en/latest/
 
-Run with ``pytest`` or ``python3 -m pytest test`` from the project root directory.
+Run with ``python3 setup.py test``
