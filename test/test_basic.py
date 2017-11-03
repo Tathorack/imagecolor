@@ -23,7 +23,6 @@ logger.addHandler(ch)
 
 def test_average_from_tempfiles(tfile):
     result = ic.average(tfile.name)
-    print(result)
     value = int(os.path.splitext(os.path.splitext(result['name'])[0])[0])
     assert result['red'] == value
     assert result['green'] == value
@@ -32,7 +31,6 @@ def test_average_from_tempfiles(tfile):
 
 def test_average_images_from_tempfiles(tdirectory):
     result = ic.average_images(tdirectory.name)
-    print(result)
     for r in result:
         value = int(os.path.splitext(os.path.splitext(r['name'])[0])[0])
         assert r['red'] == value
@@ -42,7 +40,6 @@ def test_average_images_from_tempfiles(tdirectory):
 
 def test_directory_average_from_tempfiles(tdirectory):
     result = ic.directory_average(tdirectory.name)
-    print(result)
     value = int(os.path.splitext(os.path.splitext(result['name'])[0])[0])
     assert result['red'] == value
     assert result['green'] == value
@@ -51,9 +48,7 @@ def test_directory_average_from_tempfiles(tdirectory):
 
 def test_nested_directory_average_from_tempfiles(tdirectories):
     result = ic.nested_directory_average(tdirectories.name)
-    print(result)
     for r in result:
-        print(r)
         value = int(os.path.splitext(os.path.splitext(r['name'])[0])[0])
         assert r['red'] == value
         assert r['green'] == value
@@ -88,5 +83,4 @@ def test_results_rectangle_from_tempresults(tresults):
 def test_csv_save_and_load_from_tempfiles(tresults, tcsv):
     ic.results_save_csv(tresults, tcsv.name)
     results = ic.results_load_csv(tcsv.name)
-    print(results)
     assert tresults == results
