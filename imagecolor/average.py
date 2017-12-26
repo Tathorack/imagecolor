@@ -153,13 +153,14 @@ def average_images(dir_in):
         list
             For each image averaged returns a list of dictionaries
             each with the following keys: name, red, green, blue.
+
     """
     try:
         cpus = cpu_count()
-        logger.debug('Number of CPUs detected. Setting to %d', cpus)
-    except(NotImplementedError):
+        LOGGER.debug('Number of CPUs detected. Setting to %d', cpus)
+    except NotImplementedError:
         cpus = 4
-        logger.warning('Number of CPUs not found. Setting default to %s', cpus)
+        LOGGER.warning('Number of CPUs not found. Setting default to %s', cpus)
     images = []
     results = []
     files = [f for f in os.listdir(dir_in)
@@ -170,7 +171,7 @@ def average_images(dir_in):
             images.append(filepath)
     with Pool(cpus) as p:
         results = (p.map(average, images))
-    return(results)
+    return results
 
 
 def directory_average(dir_in, name=None):
@@ -192,10 +193,10 @@ def directory_average(dir_in, name=None):
     """
     try:
         cpus = cpu_count()
-        logger.debug('Number of CPUs detected. Setting to %d', cpus)
+        LOGGER.debug('Number of CPUs detected. Setting to %d', cpus)
     except(NotImplementedError):
         cpus = 4
-        logger.warning('Number of CPUs not found. Setting default to %s', cpus)
+        LOGGER.warning('Number of CPUs not found. Setting default to %s', cpus)
     filepaths = []
     imagecount, r_total, g_total, b_total = 0, 0, 0, 0
     if name is None:
@@ -207,7 +208,7 @@ def directory_average(dir_in, name=None):
             if imghdr.what(filepath) in ['jpeg', 'png']:
                 filepaths.append(filepath)
         except(IsADirectoryError):
-            logger.debug('Directory %s found, Skipping', filename)
+            LOGGER.debug('Directory %s found, Skipping', filename)
             pass
     with Pool(cpus) as p:
         results = (p.map(average, filepaths))
@@ -218,10 +219,10 @@ def directory_average(dir_in, name=None):
             g_total += result['blue']
             imagecount += 1
         except TypeError:
-            logger.debug('Result not vaild. Skipping', exc_info=True)
+            LOGGER.debug('Result not vaild. Skipping', exc_info=True)
             pass
         except AttributeError:
-            logger.debug('Result not vaild. Skipping', exc_info=True)
+            LOGGER.debug('Result not vaild. Skipping', exc_info=True)
             pass
     if imagecount > 0:
         r_avg = int(r_total / imagecount)
@@ -230,7 +231,7 @@ def directory_average(dir_in, name=None):
         return({'name': dir_name[-1], 'red': r_avg,
                 'green': g_avg, 'blue': b_avg})
     else:
-        logger.warning("No images in %s directory successfully averaged. "
+        LOGGER.warning("No images in %s directory successfully averaged. "
                        "Returning None", dir_name[-1])
         return(None)
 
@@ -261,7 +262,7 @@ def nested_directory_average(root_dir):
             try:
                 if imghdr.what(filepath) in ['jpeg', 'png']:
                     filtered_dirs.append(current_dir)
-                    logger.debug('Image found in directory %s. '
+                    LOGGER.debug('Image found in directory %s. '
                                  'Appending to filtered directories',
                                  current_dir.split(os.sep)[-1])
                     break
