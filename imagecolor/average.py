@@ -33,19 +33,27 @@ logger = logging.getLogger(__name__)
 
 def average(image, name=None, downsample=True,
             max_size=100, alpha_threshold=None):
-    """Averages a single image from a file or file-like object.
-    Arguments
-    image: str
-        path to image or file-like object
-    name: str
-        auto generated from path unless set
-    downsample: bool
-        if downsampling is enabled to speed up iteration
-    max_size: int
-        max length of longest side if downsample == True
-    alpha_threshold: int
-        level at which transparent pixels are excluded from average
-    return {'name':name, 'red':r_avg, 'green':g_avg, 'blue':b_avg} or None
+    """Average a single image.
+
+    Averages a single image from a file or file-like object.
+
+    Parameters
+    ----------
+        image : str
+            A filename, pathlib.Path object or a file object.
+        name : str, optional
+            auto generated from path unless set.
+        downsample : bool, optional
+            if downsampling is enabled to speed up iteration.
+        max_size : int, optional
+            max length of longest side if downsample == True.
+        alpha_threshold : int, optional
+            level at which transparent pixels are excluded.
+    Returns
+    -------
+        dict
+            A dictionary with the following keys name, red, green, blue.
+            If the image was unable to be averaged None.
     """
     logger.debug("average called")
     if alpha_threshold is None:
@@ -62,7 +70,6 @@ def average(image, name=None, downsample=True,
             im.thumbnail((max_size, max_size))
             logger.debug('Image resized to %d x %d', im.size[0], im.size[1])
         grid = im.load()
-        pixels = []
         pixelcount, r_total, g_total, b_total = 0, 0, 0, 0
         for x in range(im.size[0]):
             for y in range(im.size[1]):
@@ -88,11 +95,11 @@ def average(image, name=None, downsample=True,
         logger.debug('average result: Name=%s, R=%d, G=%d, B=%d',
                      name, r_avg, g_avg, b_avg)
         return({'name': name, 'red': r_avg, 'green': g_avg, 'blue': b_avg})
-    except Exception as e:
-        logger.warning('Exception %s', e)
+    except IOError as exc:
+        logger.warning('Exception %s', exc)
         logger.debug('average Traceback', exc_info=True)
     else:
-        return(None)
+        return None
 
 
 def average_images(dir_in):
