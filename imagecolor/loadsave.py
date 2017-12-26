@@ -31,11 +31,21 @@ logger = logging.getLogger(__name__)
 
 
 def results_line(results):
-    """Accepts a list of results and creates an image that is 1
+    """Create a line of pixels from a list of results.
+
+    Accepts a list of results and creates an image that is 1
     pixel tall and the length of the number of results. The
     image contains a pixel of the color of each result in the
     list of results.
-    return PIL.Image.object
+
+    Parameters
+    ----------
+        results : list
+            a list of imagecolor results
+    Returns
+    -------
+        PIL.Image.object
+            linear image containing the results
     """
     if len(results) == 0:
         logger.error("Nothing in results")
@@ -50,12 +60,24 @@ def results_line(results):
 
 
 def results_rectangle(results, aspectratio=None):
-    """Accepts a list of results and creates an image that is
+    """Create a rectangle of pixels from a list of results.
+
+    Accepts a list of results and creates an image that is
     rectangular. The aspect ratio can be set by passing a list
     formated as [16,9] to aspectratio. The default is 3x2.
     The image contains a pixel of the color of each result in
     the list of results.
-    return PIL.Image.object
+
+    Parameters
+    ----------
+        results : list
+            a list of imagecolor results
+        aspectratio : tuple of int
+            the aspect ratio of the image being created
+    Returns
+    -------
+        PIL.Image.object
+            rectangular image containing the results
     """
     if len(results) == 0:
         logger.error("Nothing in results")
@@ -79,11 +101,20 @@ def results_rectangle(results, aspectratio=None):
 
 
 def results_save_csv(results, csv_out):
-    """Accepts the path to a new csv file and a list containing
+    """Create a csv file from a list of results.
+
+    Accepts the path to a new csv file and a list containing
     results.Writes the current results to a csv file which can
     be re-loaded again by using csv_to_results. The csv created
     is formatted as follows:
     'File or Folder', 'Red', 'Green', 'Blue'
+
+    Parameters
+    ----------
+        results : list
+            a list of imagecolor results
+        csv_out : str
+            the path to the file to be created
     """
     if len(results) == 0:
         logger.error("Nothing in results")
@@ -100,11 +131,22 @@ def results_save_csv(results, csv_out):
 
 
 def results_load_csv(csv_in):
-    """Accepts the path to a csv file formatted as follows:
+    """Create a list of results from a csv file.
+
+    Accepts the path to a csv file formatted as follows:
     'File or Folder', 'Red', 'Green', 'Blue' parses the file
     line by line skipping the header. Returns a list containing
     an list for each line in the csv. Does not do any input checks
     other than converting the r, g, b colums to ints.
+
+    Parameters
+    ----------
+        csv_in : str
+            the path to the file to be loaded
+    Returns
+    -------
+        list
+            a list of imagecolor results
     """
     results = []
     logger.info('Opening CSV file %s for reading', csv_in.split(os.sep)[-1])

@@ -1,5 +1,5 @@
-imagecolor
-==========
+imagecolor reference
+====================
 
 .. toctree::
    :maxdepth: 4
