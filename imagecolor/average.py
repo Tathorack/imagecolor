@@ -1,12 +1,14 @@
-#!/usr/bin/env python3
-# coding=UTF-8
+"""imagecolor functions for averaging images."""
 
 import imghdr
 import logging
 import os
+from operator import add
 from multiprocessing import Pool, cpu_count
 
 from PIL import Image
+
+from .exceptions import ImageAveragingError
 
 """Copyright © 2017 Rhys Hansen
 
@@ -28,14 +30,77 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE."""
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
-def average(image, name=None, downsample=True,
-            max_size=100, alpha_threshold=None):
+def core_average(image, downsample=True, max_size=100, alpha_threshold=245):
     """Average a single image.
 
     Averages a single image from a file or file-like object.
+
+    Parameters
+    ----------
+        image : str
+            A filename, pathlib.Path object or a file object.
+        downsample : bool, optional
+            if downsampling is enabled to speed up iteration.
+        max_size : int, optional
+            max length of longest side if downsample == True.
+        alpha_threshold : int, optional
+            level at which transparent pixels are excluded.
+    Returns
+    -------
+        dict
+            A dictionary with the following keys: red, green, blue.
+    Raises
+    ------
+        ImageAveragingError
+            If the file cannot be found, or the image cannot be
+            opened and identified
+
+    """
+    LOGGER.debug("core_average called")
+    try:
+        image = Image.open(image)
+        LOGGER.debug('Image opened. Dimensions %d x %d',
+                     image.size[0], image.size[1])
+        if ((image.size[0] > max_size or image.size[1] > max_size)
+                and downsample is True):
+            image.thumbnail((max_size, max_size))
+            LOGGER.debug('Image resized to %d x %d',
+                         image.size[0], image.size[1])
+        grid = image.load()
+        pixelcount = 0
+        pixelaccum = [0, 0, 0]
+        for x in range(image.size[0]):  # pylint: disable=C0103
+            for y in range(image.size[1]):  # pylint: disable=C0103
+                currentpx = grid[x, y]
+                try:
+                    """this try-except checks to see if pixels have
+                    transparency and excludes them if they are greater
+                    than the alpha_threshold.
+                    """
+                    if currentpx[3] > alpha_threshold:
+                        pixelaccum = list(map(add, pixelaccum, currentpx))
+                        pixelcount += 1
+                except IndexError:
+                    pixelaccum = list(map(add, pixelaccum, currentpx))
+                    pixelcount += 1
+        result = [value // pixelcount for value in pixelaccum]
+        LOGGER.debug('average result: R=%d, G=%d, B=%d', *result)
+        return({'red': result[0], 'green': result[1], 'blue': result[2]})
+    except IOError as exc:
+        LOGGER.warning('Exception %s', exc)
+        LOGGER.debug('average Traceback', exc_info=True)
+        raise ImageAveragingError(exc)
+
+
+def file_average(image, name=None, downsample=True,
+                       max_size=100, alpha_threshold=245):
+    """Average a single image and keep track of its name.
+
+    Averages a single image from a file or file-like object into a
+    dictionary with the filename
 
     Parameters
     ----------
@@ -52,54 +117,24 @@ def average(image, name=None, downsample=True,
     Returns
     -------
         dict
-            A dictionary with the following keys: name, red, green, blue.
-            If the image was unable to be averaged None.
+            A dictionary with the following keys: red, green, blue.
+    Raises
+    ------
+        ImageAveragingError
+            If the file cannot be found, or the image cannot be
+            opened and identified
+        AttributeError
+            If name is None and cannot be set from filepath
+
     """
-    logger.debug("average called")
-    if alpha_threshold is None:
-        alpha_threshold = 245
     if name is None:
         name = image.split(os.sep)[-1]
-    logger.debug('Image name: %s', name)
-    try:
-        im = Image.open(image)
-        logger.debug('Image opened. Dimensions %d x %d',
-                     im.size[0], im.size[1])
-        if ((im.size[0] > max_size or im.size[1] > max_size)
-                and downsample is True):
-            im.thumbnail((max_size, max_size))
-            logger.debug('Image resized to %d x %d', im.size[0], im.size[1])
-        grid = im.load()
-        pixelcount, r_total, g_total, b_total = 0, 0, 0, 0
-        for x in range(im.size[0]):
-            for y in range(im.size[1]):
-                currentpx = grid[x, y]
-                try:
-                    """this try-except checks to see if pixels have
-                    transparency and excludes them if they are greater
-                    than the alpha_threshold (default=245).
-                    """
-                    if currentpx[3] > alpha_threshold:
-                        r_total += currentpx[0]
-                        g_total += currentpx[1]
-                        b_total += currentpx[2]
-                        pixelcount += 1
-                except IndexError:
-                    r_total += currentpx[0]
-                    g_total += currentpx[1]
-                    b_total += currentpx[2]
-                    pixelcount += 1
-        r_avg = int(r_total / pixelcount)
-        g_avg = int(g_total / pixelcount)
-        b_avg = int(b_total / pixelcount)
-        logger.debug('average result: Name=%s, R=%d, G=%d, B=%d',
-                     name, r_avg, g_avg, b_avg)
-        return({'name': name, 'red': r_avg, 'green': g_avg, 'blue': b_avg})
-    except IOError as exc:
-        logger.warning('Exception %s', exc)
-        logger.debug('average Traceback', exc_info=True)
-    else:
-        return None
+    LOGGER.debug('Image name: %s', name)
+    result = core_average(image, downsample=downsample,
+                          max_size=max_size,
+                          alpha_threshold=alpha_threshold)
+    result['name'] = name
+    return result
 
 
 def average_images(dir_in):
