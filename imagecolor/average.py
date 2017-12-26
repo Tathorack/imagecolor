@@ -33,19 +33,27 @@ logger = logging.getLogger(__name__)
 
 def average(image, name=None, downsample=True,
             max_size=100, alpha_threshold=None):
-    """Averages a single image from a file or file-like object.
-    Arguments
-    image: str
-        path to image or file-like object
-    name: str
-        auto generated from path unless set
-    downsample: bool
-        if downsampling is enabled to speed up iteration
-    max_size: int
-        max length of longest side if downsample == True
-    alpha_threshold: int
-        level at which transparent pixels are excluded from average
-    return {'name':name, 'red':r_avg, 'green':g_avg, 'blue':b_avg} or None
+    """Average a single image.
+
+    Averages a single image from a file or file-like object.
+
+    Parameters
+    ----------
+        image : str
+            A filename, pathlib.Path object or a file object.
+        name : str, optional
+            auto generated from path unless set.
+        downsample : bool, optional
+            if downsampling is enabled to speed up iteration.
+        max_size : int, optional
+            max length of longest side if downsample == True.
+        alpha_threshold : int, optional
+            level at which transparent pixels are excluded.
+    Returns
+    -------
+        dict
+            A dictionary with the following keys: name, red, green, blue.
+            If the image was unable to be averaged None.
     """
     logger.debug("average called")
     if alpha_threshold is None:
@@ -62,7 +70,6 @@ def average(image, name=None, downsample=True,
             im.thumbnail((max_size, max_size))
             logger.debug('Image resized to %d x %d', im.size[0], im.size[1])
         grid = im.load()
-        pixels = []
         pixelcount, r_total, g_total, b_total = 0, 0, 0, 0
         for x in range(im.size[0]):
             for y in range(im.size[1]):
@@ -88,22 +95,29 @@ def average(image, name=None, downsample=True,
         logger.debug('average result: Name=%s, R=%d, G=%d, B=%d',
                      name, r_avg, g_avg, b_avg)
         return({'name': name, 'red': r_avg, 'green': g_avg, 'blue': b_avg})
-    except Exception as e:
-        logger.warning('Exception %s', e)
+    except IOError as exc:
+        logger.warning('Exception %s', exc)
         logger.debug('average Traceback', exc_info=True)
     else:
-        return(None)
+        return None
 
 
 def average_images(dir_in):
-    """Accepts the path to a directory averages each individual
+    """Average all images in a directory.
+
+    Accepts the path to a directory averages each individual
     image and returns a list with an entry for each image
     successfully averaged.
-    Arguements
-    dir_in: str
-        path to directory
-    return [{'name':name, 'red':r_avg, 'green':g_avg, 'blue':b_avg},
-            {'name':name, 'red':r_avg, 'green':g_avg, 'blue':b_avg}]
+
+    Parameters
+    ----------
+        dir_in : str
+            path to directory
+    Returns
+    -------
+        list
+            For each image averaged returns a list of dictionaries
+            each with the following keys: name, red, green, blue.
     """
     try:
         cpus = cpu_count()
@@ -125,13 +139,21 @@ def average_images(dir_in):
 
 
 def directory_average(dir_in, name=None):
-    """Averages the images in the directory into a directory average.
-    Arguements
-    dir_in: str
-        path to directory
-    name: str
-        auto generated from path unless set
-    return {'name':directory, 'red':r_avg, 'green':g_avg, 'blue':b_avg} or None
+    """Average all images in a directory into a single average.
+
+    Averages the images in the directory into a directory average.
+
+    Parameters
+    ----------
+        dir_in : str
+            path to directory
+        name : str, optional
+            auto generated from path unless set
+    Returns
+    -------
+        dict
+            A dictionary with the following keys: name, red, green, blue.
+            If the image was unable to be averaged None.
     """
     try:
         cpus = cpu_count()
@@ -153,7 +175,7 @@ def directory_average(dir_in, name=None):
             logger.debug('Directory %s found, Skipping', filename)
             pass
     with Pool(cpus) as p:
-            results = (p.map(average, filepaths))
+        results = (p.map(average, filepaths))
     for result in results:
         try:
             r_total += result['red']
@@ -179,14 +201,21 @@ def directory_average(dir_in, name=None):
 
 
 def nested_directory_average(root_dir):
-    """Accepts the path to a directory and walks all the enclosed
+    """Recursive directory average.
+
+    Accepts the path to a directory and walks all the enclosed
     directories calling average_directory for each one that
     contains images.
-    Arguements
-    root_dir: str
-        path to directory
-    return [{'name':directory, 'red':r_avg, 'green':g_avg, 'blue':b_avg},
-            {'name':directory, 'red':r_avg, 'green':g_avg, 'blue':b_avg}]
+
+    Parameters
+    ----------
+        dir_in : str
+            path to directory
+    Returns
+    -------
+        list
+            For each directory averaged returns a list of dictionaries
+            each with the following keys: name, red, green, blue.
     """
     filtered_dirs = []
     results = []

@@ -26,7 +26,6 @@ def tfile():
     t_file = tempfile.NamedTemporaryFile(suffix='.png', prefix='{}.'
                                          .format(value))
     im = Image.new("RGB", (200, 200), "rgb({0}, {0}, {0})".format(value))
-    print(t_file.name)
     im.save(t_file.name, format="png")
     return(t_file)
 
