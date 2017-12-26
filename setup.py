@@ -1,16 +1,29 @@
 #!/usr/bin/env python3
 # coding=UTF-8
+import re
+import os
 from setuptools import setup
-from codecs import open
+import codecs
 
-major_version = 1
-minor_version = 2
-build_version = 0
+here = os.path.abspath(os.path.dirname(__file__))
 
-version = '{0}.{1}.{2}'.format(major_version, minor_version, build_version)
+
+def read(*parts):
+    with codecs.open(os.path.join(here, *parts), 'r') as fp:
+        return fp.read()
+
+
+def find_version(*file_paths):
+    version_file = read(*file_paths)
+    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
+                              version_file, re.M)
+    if version_match:
+        return version_match.group(1)
+    raise RuntimeError("Unable to find version string.")
+
 
 setup(name='imagecolor',
-      version=version,
+      version=find_version("imagecolor", "__init__.py"),
       description='Image color extraction',
       long_description=open('README.rst', encoding='utf-8').read(),
       classifiers=[
