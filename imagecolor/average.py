@@ -8,7 +8,7 @@ import concurrent.futures
 
 from PIL import Image
 
-from .exceptions import ImageAveragingError
+from .exceptions import ImageAveragingError, DirectoryAveragingError
 
 """Copyright © 2017 Rhys Hansen
 
