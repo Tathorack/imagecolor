@@ -105,11 +105,13 @@ def core_average(image, downsample=True, max_size=100, alpha_threshold=245):
 
 
 def file_average(image, name=None, downsample=True,
-                       max_size=100, alpha_threshold=245):
-    """Average a single image and keep track of its name.
+                 max_size=100, alpha_threshold=245):
+    """Average a single image and keep track of its file name.
 
-    Averages a single image from a file or file-like object into a
-    dictionary with the filename
+    Averages a single image from a file or file-like object. name is
+    extracted from the filepath unless set. By default downsamples images
+    that are larger than 100px on the long side for speed.
+    Ignores pixels that are more transperent than the alpha_threshold.
 
     Parameters
     ----------
@@ -126,14 +128,16 @@ def file_average(image, name=None, downsample=True,
     Returns
     -------
         dict
-            A dictionary with the following keys: red, green, blue.
+            A dictionary with the following keys: name, red, green, blue.
     Raises
     ------
-        ImageAveragingError
-            If the file cannot be found, or the image cannot be
-            opened and identified
         AttributeError
-            If name is None and cannot be set from filepath
+            If name is not passed in and cannot be set from filepath.
+        IOError
+            If the file cannot be found, or the image cannot be
+            opened and identified.
+        ImageAveragingError
+            If the image could not be averaged.
 
     """
     if name is None:
