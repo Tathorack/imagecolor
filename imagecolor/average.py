@@ -54,9 +54,11 @@ def core_average(image, downsample=True, max_size=100, alpha_threshold=245):
             A dictionary with the following keys: red, green, blue.
     Raises
     ------
-        ImageAveragingError
+        IOError
             If the file cannot be found, or the image cannot be
-            opened and identified
+            opened and identified.
+        ImageAveragingError
+            If the image could not be averaged.
 
     """
     LOGGER.debug("core_average called")
@@ -88,11 +90,15 @@ def core_average(image, downsample=True, max_size=100, alpha_threshold=245):
                     pixelcount += 1
         result = [value // pixelcount for value in pixelaccum]
         LOGGER.debug('average result: R=%d, G=%d, B=%d', *result)
-        return({'red': result[0], 'green': result[1], 'blue': result[2]})
-    except IOError as exc:
-        LOGGER.warning('Exception %s', exc)
-        LOGGER.debug('average Traceback', exc_info=True)
-        raise ImageAveragingError(exc)
+        return {'red': result[0], 'green': result[1], 'blue': result[2]}
+    except ZeroDivisionError:  # No pixels averaged
+        LOGGER.debug('Traceback', exc_info=True)
+        raise ImageAveragingError(
+            "No pixels averaged in image! If the image has transperency, "
+            "try raising the alpha_threshold.")
+    except TypeError:  # single channel image
+        LOGGER.debug('Traceback', exc_info=True)
+        raise ImageAveragingError("Single channel image! Try an RGB image.")
 
 
 def file_average(image, name=None, downsample=True,
