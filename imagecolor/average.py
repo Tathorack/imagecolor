@@ -4,7 +4,7 @@ import imghdr
 import logging
 import os
 from operator import add
-from multiprocessing import Pool, cpu_count
+import concurrent.futures
 
 from PIL import Image
 
