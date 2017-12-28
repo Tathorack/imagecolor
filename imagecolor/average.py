@@ -150,42 +150,54 @@ def file_average(image, name=None, downsample=True,
     return result
 
 
-def average_images(dir_in):
+def directory_average(path, image_formats=('jpeg', 'png')):
     """Average all images in a directory.
 
-    Accepts the path to a directory averages each individual
-    image and returns a list with an entry for each image
-    successfully averaged.
+    Accepts the path to a directory and averages each individual image.
+    Uses concurrent.futures to process images in paralell. If images fail
+    to average successfully, the exceptions are caught and logged allowing
+    other images to finish. By default only averages jpeg and png images.
 
     Parameters
     ----------
-        dir_in : str
-            path to directory
+        path : str
+            Path to directory.
+        image_formats : touple of str, optional
+            touple of image formats used by imghdr to determine what types
+            of images to average. Defaults: ('jpeg', 'png')
     Returns
     -------
         list
-            For each image averaged returns a list of dictionaries
+            For each image averaged, returns a list of dictionaries
             each with the following keys: name, red, green, blue.
+    Raises
+    ------
+        ImageAveragingError
+            If no images were averaged successfully.
 
     """
-    try:
-        cpus = cpu_count()
-        LOGGER.debug('Number of CPUs detected. Setting to %d', cpus)
-    except NotImplementedError:
-        cpus = 4
-        LOGGER.warning('Number of CPUs not found. Setting default to %s', cpus)
-    images = []
+    images = _images_from_dir(path, image_formats=image_formats)
     results = []
-    files = [f for f in os.listdir(dir_in)
-             if os.path.isfile(os.path.join(dir_in, f))]
-    for f in files:
-        filepath = os.path.join(dir_in, f)
-        if imghdr.what(filepath) in ['jpeg', 'png']:
-            images.append(filepath)
-    with Pool(cpus) as p:
-        results = (p.map(average, images))
-    return results
-
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        # Create a list of futures for each image to be averaged.
+        future_to_image = [executor.submit(file_average, image)
+                           for image in images]
+        # As the futures are completed access the results.
+        for future in concurrent.futures.as_completed(future_to_image):
+            try:
+                data = future.result()
+                LOGGER.debug('future.result: name=%s R=%d, G=%d, B=%d',
+                             data['name'], data['red'],
+                             data['green'], data['blue'])
+                # If the result is valid append it to results.
+                results.append(data)
+            except ImageAveragingError as exc:
+                # If file_average failed, catch exceptions and log them.
+                LOGGER.warning('file_average failed: %s', exc)
+                LOGGER.debug('Traceback', exc_info=True)
+    if results:
+        return results
+    raise ImageAveragingError("No images successfully averaged!")
 
 def directory_average(dir_in, name=None):
     """Average all images in a directory into a single average.
