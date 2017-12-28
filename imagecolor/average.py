@@ -1,6 +1,5 @@
 """imagecolor functions for averaging images."""
 
-import imghdr
 import logging
 import os
 from operator import add
@@ -9,6 +8,7 @@ import concurrent.futures
 from PIL import Image
 
 from .exceptions import ImageAveragingError, DirectoryAveragingError
+from .utilities import _images_from_dir, _directories_with_images
 
 """Copyright © 2017 Rhys Hansen
 
