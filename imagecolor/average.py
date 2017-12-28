@@ -226,45 +226,59 @@ def single_directory_average(path, image_formats=('jpeg', 'png')):
             If the directory could not be averaged.
 
     """
+    name = os.path.abspath(path).split(os.sep)[-1]
+    results = directory_average(path, image_formats=image_formats)
+    imagecount = 0
+    accum = {'red': 0, 'green': 0, 'blue': 0}
+    for image in results:
+        accum['red'] += image['red']
+        accum['green'] += image['green']
+        accum['blue'] += image['blue']
+        imagecount += 1
+    if imagecount:
+        result = {key: value // imagecount for key, value in accum.items()}
+        LOGGER.debug('single_directory_average result: '
+                     'Name=%s, R=%d, G=%d, B=%d', name,
+                     result['red'], result['green'], result['blue'])
+        return {'name': name, 'red': result['red'],
+                'green': result['green'], 'blue': result['blue']}
+    raise DirectoryAveragingError('Unable to average directory!')
 
 
-def nested_directory_average(root_dir):
-    """Recursive directory average.
+def nested_directory_average(path, image_formats=('jpeg', 'png')):
+    """Averages all subdirectories into a directory average for each directory.
 
     Accepts the path to a directory and walks all the enclosed
-    directories calling average_directory for each one that
-    contains images.
+    directories calling single_directory_average for each one that
+    contains images. Uses concurrent.futures to process images in paralell.
+    If images fail to average successfully, the exceptions are caught and
+    logged allowing other images to finish. By default only averages
+    jpeg and png images.
 
     Parameters
     ----------
-        dir_in : str
+        path : str
             path to directory
+        image_formats : touple of str, optional
+            touple of image formats used by imghdr to determine what types
+            of images to average. Defaults: ('jpeg', 'png')
     Returns
     -------
         list
-            For each directory averaged returns a list of dictionaries
+            For each directory averaged, returns a list of dictionaries
             each with the following keys: name, red, green, blue.
+
     """
-    filtered_dirs = []
+    filtered_paths = _directories_with_images(
+        path, image_formats=image_formats)
     results = []
-    sub_dirs = [d[0] for d in os.walk(root_dir)]
-    for current_dir in sub_dirs:
-        for current_file in os.listdir(current_dir):
-            filepath = os.path.join(current_dir, current_file)
-            try:
-                if imghdr.what(filepath) in ['jpeg', 'png']:
-                    filtered_dirs.append(current_dir)
-                    LOGGER.debug('Image found in directory %s. '
-                                 'Appending to filtered directories',
-                                 current_dir.split(os.sep)[-1])
-                    break
-            except(IsADirectoryError):
-                pass
-    for dir_path in filtered_dirs:
-        result = directory_average(dir_path)
+    for dpath in filtered_paths:
         try:
-            if result is not None:
-                results.append(result)
-        except TypeError:
-            pass
-    return(results)
+            results.append(single_directory_average(
+                dpath, image_formats=image_formats))
+        except DirectoryAveragingError as exc:
+            LOGGER.warning('single_directory_average failed: %s', exc)
+            LOGGER.debug('Traceback', exc_info=True)
+    if results:
+        return results
+    raise DirectoryAveragingError('Unable to average directories')
