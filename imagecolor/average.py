@@ -36,7 +36,9 @@ LOGGER = logging.getLogger(__name__)
 def core_average(image, downsample=True, max_size=100, alpha_threshold=245):
     """Average a single image.
 
-    Averages a single image from a file or file-like object.
+    Averages a single image from a file or file-like object. By default
+    downsamples images that are larger than 100px on the long side for speed.
+    Ignores pixels that are more transperent than the alpha_threshold.
 
     Parameters
     ----------
@@ -71,23 +73,24 @@ def core_average(image, downsample=True, max_size=100, alpha_threshold=245):
             image.thumbnail((max_size, max_size))
             LOGGER.debug('Image resized to %d x %d',
                          image.size[0], image.size[1])
+        # load the pixels of the image into a 2D array.
         grid = image.load()
         pixelcount = 0
-        pixelaccum = [0, 0, 0]
+        pixelaccum = [0, 0, 0]  # Accumulator list for Red, Green, Blue.
         for x in range(image.size[0]):  # pylint: disable=C0103
             for y in range(image.size[1]):  # pylint: disable=C0103
                 currentpx = grid[x, y]
                 try:
-                    """this try-except checks to see if pixels have
-                    transparency and excludes them if they are greater
-                    than the alpha_threshold.
-                    """
+                    # Check the value of the alpha channel.
                     if currentpx[3] > alpha_threshold:
+                        # Add pixel values if above alpha_threshold.
                         pixelaccum = list(map(add, pixelaccum, currentpx))
                         pixelcount += 1
                 except IndexError:
+                    # If no alpha channel add pixel values.
                     pixelaccum = list(map(add, pixelaccum, currentpx))
                     pixelcount += 1
+        # Get the average of each channel
         result = [value // pixelcount for value in pixelaccum]
         LOGGER.debug('average result: R=%d, G=%d, B=%d', *result)
         return {'red': result[0], 'green': result[1], 'blue': result[2]}
