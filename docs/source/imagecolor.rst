@@ -20,6 +20,14 @@ imagecolor\.average module
     :undoc-members:
     :show-inheritance:
 
+imagecolor\.exceptions module
+-----------------------------
+
+.. automodule:: imagecolor.exceptions
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 imagecolor\.loadsave module
 ---------------------------
 
