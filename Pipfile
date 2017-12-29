@@ -7,13 +7,14 @@ name = "pypi"
 
 [packages]
 
-Pillow = "*"
+pillow = "*"
 pytest = "*"
 pycodestyle = "*"
 pylint = "*"
-Sphinx = "*"
+sphinx = "*"
 sphinxcontrib-napoleon = "*"
-sphinx_rtd_theme = "*"
+sphinx-rtd-theme = "*"
+jupyter = "*"
 
 
 [dev-packages]
