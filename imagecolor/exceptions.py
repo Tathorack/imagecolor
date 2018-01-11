@@ -17,3 +17,9 @@ class DirectoryAveragingError(ImageColorException):
     """Raised when an directory was unable to be averaged."""
 
     pass
+
+
+class NoResultsError(ImageColorException):
+    """Raised when a list of results is empty or invalid."""
+
+    pass
