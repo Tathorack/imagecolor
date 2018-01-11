@@ -1,0 +1,10 @@
+recursive-include imagecolor *.py
+recursive-include test *.py
+recursive-include docs/source *.rst
+include Makefile
+include Pipfile
+include .pylintrc
+include *.rst
+prune .venv
+prune build
+prune dist
