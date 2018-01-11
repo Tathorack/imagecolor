@@ -1,19 +1,23 @@
 #!/usr/bin/env python3
-# coding=UTF-8
+"""Setup for imagecolor module."""
 import re
 import os
-from setuptools import setup
 import codecs
+from setuptools import setup
 
-here = os.path.abspath(os.path.dirname(__file__))
+# pylint: disable=c0103
+
+HERE = os.path.abspath(os.path.dirname(__file__))
 
 
 def read(*parts):
-    with codecs.open(os.path.join(here, *parts), 'r') as fp:
+    """Join parts to current location and opens that file."""
+    with codecs.open(os.path.join(HERE, *parts), 'r') as fp:
         return fp.read()
 
 
 def find_version(*file_paths):
+    """Get version from the file at current directory joined to file_paths."""
     version_file = read(*file_paths)
     version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
                               version_file, re.M)
@@ -41,14 +45,8 @@ setup(name='imagecolor',
       author_email='rhyshonline@gmail.com',
       license='MIT',
       packages=['imagecolor'],
-      install_requires=[
-          'Pillow',
-        ],
-      setup_requires=[
-          'pytest-runner',
-        ],
-      tests_require=[
-        'pytest',
-        ],
+      install_requires=['pillow'],
+      setup_requires=['pytest-runner'],
+      tests_require=['pytest'],
       include_package_data=True,
       zip_safe=False)
