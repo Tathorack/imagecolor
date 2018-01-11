@@ -1,10 +1,12 @@
 """imagecolor functions for loading and saving results."""
 import csv
 import logging
-import math
+from math import floor, sqrt
 import os
 
 from PIL import Image
+
+from .exceptions import NoResultsError
 
 """Copyright © 2017 Rhys Hansen
 
@@ -26,7 +28,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE."""
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 def results_line(results):
@@ -45,20 +47,20 @@ def results_line(results):
     -------
         PIL.Image.object
             linear image containing the results
+
     """
-    if len(results) == 0:
-        logger.error("Nothing in results")
-    else:
-        im = Image.new("RGB", (len(results), 1), "hsl(0, 50%, 50%)")
-        grid = im.load()
-        for x in list(range(im.size[0])):
-            grid[x, 0] = (int(results[x]['red']),
-                          int(results[x]['green']),
-                          int(results[x]['blue']))
-        return(im)
+    if not results:
+        raise NoResultsError("No results to export!")
+    image = Image.new("RGB", (len(results), 1), "hsl(0, 50%, 50%)")
+    grid = image.load()
+    for x in range(image.size[0]):  # pylint: disable=C0103
+        grid[x, 0] = (int(results[x]['red']),
+                      int(results[x]['green']),
+                      int(results[x]['blue']))
+    return image
 
 
-def results_rectangle(results, aspectratio=None):
+def results_rectangle(results, aspectratio=(3, 2)):
     """Create a rectangle of pixels from a list of results.
 
     Accepts a list of results and creates an image that is
@@ -70,36 +72,34 @@ def results_rectangle(results, aspectratio=None):
     Parameters
     ----------
         results : list
-            a list of imagecolor results
+            a list of imagecolor results.
         aspectratio : tuple of int
-            the aspect ratio of the image being created
+            the aspect ratio of the image being created. Format (3, 2)
     Returns
     -------
         PIL.Image.object
-            rectangular image containing the results
+            rectangular image containing the results.
+
     """
-    if len(results) == 0:
-        logger.error("Nothing in results")
-    else:
-        if aspectratio is None:
-            aspectratio = [3, 2]
-        sidelength = int(math.floor(math.sqrt(len(results)
-                         / (aspectratio[0] * aspectratio[1]))))
-        width = sidelength * aspectratio[0]
-        height = sidelength * aspectratio[1]
-        im = Image.new("RGB", (width, height), "hsl(0, 50%, 50%)")
-        grid = im.load()
-        count = 0
-        for y in list(range(im.size[1])):
-            for x in list(range(im.size[0])):
-                grid[x, y] = (int(results[count]['red']),
-                              int(results[count]['green']),
-                              int(results[count]['blue']))
-                count += 1
-        return(im)
+    if not results:
+        raise NoResultsError("No results to export!")
+    sidelength = int(floor(sqrt(
+        len(results) / (aspectratio[0] * aspectratio[1]))))
+    width = sidelength * aspectratio[0]
+    height = sidelength * aspectratio[1]
+    image = Image.new("RGB", (width, height), "hsl(0, 50%, 50%)")
+    grid = image.load()
+    count = 0
+    for y in range(image.size[1]):  # pylint: disable=C0103
+        for x in range(image.size[0]):  # pylint: disable=C0103
+            grid[x, y] = (int(results[count]['red']),
+                          int(results[count]['green']),
+                          int(results[count]['blue']))
+            count += 1
+    return image
 
 
-def results_save_csv(results, csv_out):
+def results_save_csv(results, path):
     """Create a csv file from a list of results.
 
     Accepts the path to a new csv file and a list containing
@@ -111,25 +111,23 @@ def results_save_csv(results, csv_out):
     Parameters
     ----------
         results : list
-            a list of imagecolor results
-        csv_out : str
-            the path to the file to be created
+            a list of imagecolor results.
+        path : str
+            the path to the file to be created.
+
     """
-    if len(results) == 0:
-        logger.error("Nothing in results")
-    else:
-        logger.info('Opening CSV file %s for writing',
-                    csv_out.split(os.sep)[-1])
-        with open(csv_out, 'w') as f:
-            csv_file = csv.writer(f)
-            csv_file.writerow(['File or Folder', 'Red', 'Green', 'Blue'])
-            for r in results:
-                csv_line = [r['name'], r['red'], r['green'], r['blue']]
-                csv_file.writerow(csv_line)
-            f.close()
+    if not results:
+        raise NoResultsError("No results to export!")
+    LOGGER.info('Opening CSV file %s for writing', path.split(os.sep)[-1])
+    with open(path, 'w') as fp:  # pylint: disable=C0103
+        csv_file = csv.writer(fp)
+        csv_file.writerow(['File or Folder', 'Red', 'Green', 'Blue'])
+        for row in results:
+            line = [row['name'], row['red'], row['green'], row['blue']]
+            csv_file.writerow(line)
 
 
-def results_load_csv(csv_in):
+def results_load_csv(path):
     """Create a list of results from a csv file.
 
     Accepts the path to a csv file formatted as follows:
@@ -140,20 +138,21 @@ def results_load_csv(csv_in):
 
     Parameters
     ----------
-        csv_in : str
-            the path to the file to be loaded
+        path : str
+            the path to the file to be loaded.
     Returns
     -------
         list
-            a list of imagecolor results
+            a list of imagecolor results.
+
     """
     results = []
-    logger.info('Opening CSV file %s for reading', csv_in.split(os.sep)[-1])
-    with open(csv_in, "rt") as f:
-        csv_file = csv.reader(f, delimiter=',')
+    LOGGER.info('Opening CSV file %s for reading', path.split(os.sep)[-1])
+    with open(path, "rt") as fp:  # pylint: disable=C0103
+        csv_file = csv.reader(fp, delimiter=',')
         for row in csv_file:
             if row[0] in ['File', 'Folder', 'File or Folder']:
-                logger.info('Skipping header')
+                LOGGER.info('Skipping header')
             else:
                 try:
                     dict_line = {'name': row[0],
@@ -161,7 +160,9 @@ def results_load_csv(csv_in):
                                  'green': int(row[2]),
                                  'blue': int(row[3])}
                     results.append(dict_line)
-                except Exception:
-                    logger.exception('results_load_csv Exception',
+                except (ValueError, TypeError):
+                    LOGGER.exception('results_load_csv Exception',
                                      exc_info=True)
-    return(results)
+    if results:
+        return results
+    raise NoResultsError("No results loaded!")
