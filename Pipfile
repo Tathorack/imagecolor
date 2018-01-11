@@ -8,14 +8,19 @@ name = "pypi"
 [packages]
 
 pillow = "*"
-pytest = "*"
-pycodestyle = "*"
-pylint = "*"
-sphinx = "*"
-sphinxcontrib-napoleon = "*"
-sphinx-rtd-theme = "*"
-jupyter = "*"
 
 
 [dev-packages]
 
+pylint = "*"
+pycodestyle = "*"
+pydocstyle = "*"
+pytest = "*"
+sphinx = "*"
+sphinxcontrib-napoleon = "*"
+sphinx-rtd-theme = "*"
+
+
+[requires]
+
+python_version = "3.6"
