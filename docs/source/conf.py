@@ -20,27 +20,31 @@
 import os
 import sys
 import re
-import codecs
-from pathlib import Path
 
-projectroot = Path(__file__).parents[2]
+rtd = bool("READTHEDOCS" in os.environ)
 
+if rtd:
+    import imagecolor
+    fullversion = imagecolor.__version__
+else:
+    import codecs
+    from pathlib import Path
 
-def read(*parts):
-    with codecs.open(os.path.join(projectroot, *parts), 'r') as fp:
-        return fp.read()
+    projectroot = Path(__file__).parents[2]
 
+    def read(*parts):
+        with codecs.open(os.path.join(projectroot, *parts), 'r') as fp:
+            return fp.read()
 
-def find_version(*file_paths):
-    version_file = read(*file_paths)
-    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
-                              version_file, re.M)
-    if version_match:
-        return version_match.group(1)
-    raise RuntimeError("Unable to find version string.")
+    def find_version(*file_paths):
+        version_file = read(*file_paths)
+        version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
+                                  version_file, re.M)
+        if version_match:
+            return version_match.group(1)
+        raise RuntimeError("Unable to find version string.")
 
-
-fullversion = find_version("imagecolor", "__init__.py")
+    fullversion = find_version("imagecolor", "__init__.py")
 
 sys.path.insert(0, os.path.abspath('../../'))
 
