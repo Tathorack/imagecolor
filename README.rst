@@ -2,6 +2,23 @@
 imagecolor - Extract colors from images
 ========================================
 
+|python| |pypi| |commit| |travis| |docs| |license|
+
+.. |python| image:: https://img.shields.io/pypi/pyversions/imagecolor.svg
+   :target: https://pypi.python.org/pypi/imagecolor
+.. |pypi| image:: https://img.shields.io/pypi/v/imagecolor.svg
+   :target: https://pypi.python.org/pypi/imagecolor
+.. |commit| image:: https://img.shields.io/github/last-commit/tathorack/imagecolor.svg
+   :target: https://github.com/Tathorack/imagecolor
+.. |travis| image:: https://travis-ci.org/Tathorack/imagecolor.svg?branch=master
+   :target: https://travis-ci.org/Tathorack/imagecolor
+   :alt: Build Status
+.. |docs| image:: https://readthedocs.org/projects/imagecolor/badge/?version=latest
+   :target: http://imagecolor.readthedocs.io/en/latest/?badge=latest
+   :alt: Documentation Status
+.. |license| image:: https://img.shields.io/pypi/l/imagecolor.svg
+   :target: https://github.com/Tathorack/imagecolor/blob/master/LICENSE.rst
+
 imagecolor is a python module for averaging images using pillow_. To speed up processing of multiple images it uses concurrent.futures_ to bipass the GIL by spawning worker processes.
 
 .. _pillow: http://pillow.readthedocs.io/
