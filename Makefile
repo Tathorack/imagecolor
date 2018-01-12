@@ -29,9 +29,9 @@ clean :
 
 lint :
 # @$(PIPENV) pylint --rcfile=.pylintrc imagecolor -f parseable -r n
-	@$(PIPENV) pylint imagecolor -f parseable -r n && \
-	$(PIPENV) pycodestyle imagecolor && \
-	$(PIPENV) pydocstyle imagecolor
+	@$(PIPENV) pylint imagecolor -f parseable -r n
+	@$(PIPENV) pycodestyle imagecolor
+	@$(PIPENV) pydocstyle imagecolor
 
 test : lint
 	@$(PIPENV) python3 -m pytest
