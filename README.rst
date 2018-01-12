@@ -1,64 +1,107 @@
 ========================================
-imagecolors - Extract colors from images
+imagecolor - Extract colors from images
 ========================================
 
-|version| |github| |python35| |license| |format|
+imagecolor is a python module for averaging images using pillow_. To speed up processing of multiple images it uses concurrent.futures_ to bipass the GIL by spawning worker processes.
 
-.. |version| image:: https://img.shields.io/pypi/v/imagecolor.svg
-    :target: https://pypi.python.org/pypi/imagecolor
-.. |python35| image:: https://img.shields.io/badge/Python-3.5-brightgreen.svg
-    :target: https://www.python.org/
-.. |license| image:: https://img.shields.io/badge/License-MIT-blue.svg
-    :target: https://github.com/Tathorack/imagecolor/blob/master/LICENSE.md
-.. |github| image:: https://img.shields.io/github/tag/Tathorack/imagecolor.svg
-   :target: https://github.com/Tathorack/imagecolor
-.. |format| image:: https://img.shields.io/pypi/format/imagecolor.svg
-    :target: https://pypi.python.org/pypi/imagecolor
+.. _pillow: http://pillow.readthedocs.io/
+.. _concurrent.futures: https://docs.python.org/3/library/concurrent.futures.html
 
-------------------------------------------------------------
-This module uses PIL (Pillow) to extract colors from images
-------------------------------------------------------------
+---------------
+Important notes
+---------------
 
-Available functions
-===================
-average(image, name=None, downsample=True, max_size=100, alpha_threshold=None)
-==============================================================================
-Averages a single image into RGB color values. Returns a dictionary with the following keys: ``name``, ``red``, ``green``, ``blue``
+Warnings
+--------
+.. warning:: imagecolor only supports python3.6 currently.
 
-* ``image`` - filename (string), pathlib.Path object or a file object. The file object must implement ``read()``, ``seek()``, and ``tell()`` methods, and be opened in binary mode.
-* ``name`` -  auto generated from image path by calling ``image.split(os.sep)[-1]`` unless set.
-* ``downsample`` - chooses if downsampling is enabled to speed up processing. Enabled by default.
-* ``max_size`` - max length of longest side if ``downsample`` is True
-* ``alpha_threshold`` - level at which transparent pixels are excluded from the average. Default is 245
+Notes
+-----
+.. note:: imagecolor is only tested on macOS and Linux currently.
+.. note:: imagecolor only works on 3 channel RGB images.
 
-average_images(dir_in)
-======================
-Averages each individual image in a directory and returns a list with an entry for each image successfully averaged. Returns a list containing a dictionary for each image with the following keys: ``name``, ``red``, ``green``, ``blue``
+------------
+Installation
+------------
 
-* ``dir_in`` - path to directory
+Basic Installation
+------------------
+Install imagecolor with :command:`pip`::
 
-directory_average(dir_in, name=None)
-====================================
-Averages all images in a directory to a singular RGB directory average. Returns a dictionary with the following keys: ``name``, ``red``, ``green``, ``blue``
+    $ pip install imagecolor
 
-* ``dir_in`` - path to directory
-* ``name`` - auto generated from directory path by calling ``dir_in.split(os.sep)[-1]`` unless set.
+Depending on your platform you might need to install the required dependencies_ for pillow before pillow (and imagecolor) will install fully.
 
-nested_directory_average(root_dir)
-==================================
-Accepts the path to a directory and walks all the enclosed directories calling ``average_directory`` for each one that contains images. Returns a list containing a dictionary for each directory with the following keys: ``name``, ``red``, ``green``, ``blue``
+.. _dependencies: http://pillow.readthedocs.io/en/5.0.0/installation.html#external-libraries
 
-* ``root_dir`` - path to starting directory
+--------------
+Usage examples
+--------------
+To use imagecolor import it with ::
 
-Future work
-===========
-* add usage examples to readme
-* add information for loadsave functions to readme
+   import imagecolor
 
-Tests
-=====
-Testing is done with pytest_
+average an image
+----------------
+Average a single image file to a dict with ``red``, ``green``, & ``blue`` keys along with the file name as ``name``
+::
 
-.. _pytest: http://docs.pytest.org/en/latest/
+   imagecolor.file_average(image)
 
-Run with ``python3 setup.py test``
+
+average all images in a directory
+---------------------------------
+Averages all images in a directory to a list of dicts with ``red``, ``green``, & ``blue`` keys along with the file name as ``name``
+::
+
+   imagecolor.directory_average(image)
+
+average a directory
+-------------------
+Averages all images in a directory to a dict with ``red``, ``green``, & ``blue`` keys along with the directory name as ``name``
+::
+
+   imagecolor.single_directory_average(image)
+
+average nested directories
+--------------------------
+Uses ``single_directory_average`` to average the directory and all subdirectories containing images to  a list of dicts with ``red``, ``green``, & ``blue`` keys along with each directory name as ``name``
+::
+
+   imagecolor.nested_directory_average(image)
+
+
+For more details read the full module reference_
+
+.. _reference: http://imagecolor.readthedocs.io/en/read-the-docs-setup/imagecolor.html#module-imagecolor
+
+-----------
+Development
+-----------
+
+Development Installation
+------------------------
+image color uses pipenv_ to manage development dependencies.
+
+.. _pipenv: http://pipenv.readthedocs.io/
+
+Install development dependencies with :command:`pipenv`::
+
+    $ pipenv install --dev
+
+make commands
+-------------
+* ``all``: calls ``release`` and ``html``
+* ``release`` checks the code with ``test`` and then calls ``source-dist`` and ``wheel-dist``
+* ``source-dist`` builds a source distribution
+* ``wheel-dist`` builds a wheel distribution
+* ``lint`` lints imagecolor with pylint_, pycodestyle_, pydocstyle_
+* ``test`` lints the code and then runs pytest_
+* ``html`` builds html docs with Sphinx_
+* ``clean`` cleans the build and dist directories
+
+.. _pylint: https://pylint.readthedocs.io
+.. _pycodestyle: https://pycodestyle.readthedocs.io
+.. _pydocstyle: http://www.pydocstyle.org/
+.. _pytest: https://pytest.readthedocs.io
+.. _Sphinx: http://www.sphinx-doc.org/
