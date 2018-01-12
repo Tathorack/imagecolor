@@ -11,7 +11,7 @@ Welcome to imagecolor's documentation!
    :caption: Contents:
 
    includereadme
-   modules
+   reference
 
 
 Indices and tables
