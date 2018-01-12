@@ -48,5 +48,9 @@ setup(name='imagecolor',
       install_requires=['pillow >= 4.0.0'],
       setup_requires=['pytest-runner'],
       tests_require=['pytest'],
+      extras_require={
+          'docs': ['sphinx', 'sphinxcontrib-napoleon', 'sphinx-rtd-theme'],
+          'lint': ['pylint', 'pycodestyle', 'pydocstyle']
+          },
       include_package_data=True,
       zip_safe=False)
