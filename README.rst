@@ -19,7 +19,7 @@ imagecolor - Extract colors from images
 .. |license| image:: https://img.shields.io/pypi/l/imagecolor.svg
    :target: https://github.com/Tathorack/imagecolor/blob/master/LICENSE.rst
 
-imagecolor is a python module for averaging images using pillow_. To speed up processing of multiple images it uses concurrent.futures_ to bipass the GIL by spawning worker processes.
+imagecolor is a python module for averaging images using pillow_. When processing of multiple images it uses concurrent.futures_ for multiprocessing.
 
 .. _pillow: http://pillow.readthedocs.io/
 .. _concurrent.futures: https://docs.python.org/3/library/concurrent.futures.html
@@ -60,32 +60,37 @@ To use imagecolor import it with ::
 
 average an image
 ----------------
-Average a single image file to a dict with ``red``, ``green``, & ``blue`` keys along with the file name as ``name``
+Average a single image file to a dict containing ``name``, ``red``, ``green``, & ``blue``
 ::
 
    imagecolor.file_average(image)
 
+If you are not interested in the file name you can use ``core_average()`` instead.
+::
+
+   imagecolor.core_average(image)
+
 
 average all images in a directory
 ---------------------------------
-Averages all images in a directory to a list of dicts with ``red``, ``green``, & ``blue`` keys along with the file name as ``name``
+Averages all images in a directory to a list of dicts containing ``name``, ``red``, ``green``, & ``blue``
 ::
 
-   imagecolor.directory_average(image)
+   imagecolor.directory_average(directory)
 
 average a directory
 -------------------
-Averages all images in a directory to a dict with ``red``, ``green``, & ``blue`` keys along with the directory name as ``name``
+Averages all images in a directory to a dict containing ``name``, ``red``, ``green``, & ``blue``
 ::
 
-   imagecolor.single_directory_average(image)
+   imagecolor.single_directory_average(directory)
 
 average nested directories
 --------------------------
-Uses ``single_directory_average`` to average the directory and all subdirectories containing images to  a list of dicts with ``red``, ``green``, & ``blue`` keys along with each directory name as ``name``
+Uses ``single_directory_average`` to average the directory and all subdirectories containing images to a list of dicts containing ``name``, ``red``, ``green``, & ``blue``
 ::
 
-   imagecolor.nested_directory_average(image)
+   imagecolor.nested_directory_average(directory)
 
 
 For more details read the full module reference_
