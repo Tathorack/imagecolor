@@ -42,25 +42,27 @@ def core_average(image, downsample=True, max_size=100, alpha_threshold=245):
 
     Parameters
     ----------
-        image : str
-            A filename, pathlib.Path object or a file object.
-        downsample : bool, optional
-            if downsampling is enabled to speed up iteration.
-        max_size : int, optional
-            max length of longest side if downsample == True.
-        alpha_threshold : int, optional
-            level at which transparent pixels are excluded.
+    image : str
+        A filename, pathlib.Path object or a file object.
+    downsample : bool, optional
+        if downsampling is enabled to speed up iteration.
+    max_size : int, optional
+        max length of longest side if downsample == True.
+    alpha_threshold : int, optional
+        level at which transparent pixels are excluded.
+
     Returns
     -------
-        dict
-            A dictionary with the following keys: red, green, blue.
+    dict
+        A dictionary with the following keys: red, green, blue.
+
     Raises
     ------
-        IOError
-            If the file cannot be found, or the image cannot be
-            opened and identified.
-        ImageAveragingError
-            If the image could not be averaged.
+    IOError
+        If the file cannot be found, or the image cannot be
+        opened and identified.
+    ImageAveragingError
+        If the image could not be averaged.
 
     """
     LOGGER.debug("core_average called")
@@ -115,29 +117,31 @@ def file_average(image, name=None, downsample=True,
 
     Parameters
     ----------
-        image : str
-            A filename, pathlib.Path object or a file object.
-        name : str, optional
-            auto generated from path unless set.
-        downsample : bool, optional
-            if downsampling is enabled to speed up iteration.
-        max_size : int, optional
-            max length of longest side if downsample == True.
-        alpha_threshold : int, optional
-            level at which transparent pixels are excluded.
+    image : str
+        A filename, pathlib.Path object or a file object.
+    name : str, optional
+        auto generated from path unless set.
+    downsample : bool, optional
+        if downsampling is enabled to speed up iteration.
+    max_size : int, optional
+        max length of longest side if downsample == True.
+    alpha_threshold : int, optional
+        level at which transparent pixels are excluded.
+
     Returns
     -------
-        dict
-            A dictionary with the following keys: name, red, green, blue.
+    dict
+        A dictionary with the following keys: name, red, green, blue.
+
     Raises
     ------
-        AttributeError
-            If name is not passed in and cannot be set from filepath.
-        IOError
-            If the file cannot be found, or the image cannot be
-            opened and identified.
-        ImageAveragingError
-            If the image could not be averaged.
+    AttributeError
+        If name is not passed in and cannot be set from filepath.
+    IOError
+        If the file cannot be found, or the image cannot be
+        opened and identified.
+    ImageAveragingError
+        If the image could not be averaged.
 
     """
     if name is None:
@@ -160,20 +164,22 @@ def directory_average(path, image_formats=('jpeg', 'png')):
 
     Parameters
     ----------
-        path : str
-            Path to directory.
-        image_formats : touple of str, optional
-            touple of image formats used by imghdr to determine what types
-            of images to average. Defaults: ('jpeg', 'png')
+    path : str
+        Path to directory.
+    image_formats : touple of str, optional
+        touple of image formats used by imghdr to determine what types
+        of images to average. Defaults: ('jpeg', 'png')
+
     Returns
     -------
-        list
-            For each image averaged, returns a list of dictionaries
-            each with the following keys: name, red, green, blue.
+    list
+        For each image averaged, returns a list of dictionaries
+        each with the following keys: name, red, green, blue.
+    
     Raises
     ------
-        ImageAveragingError
-            If no images were averaged successfully.
+    ImageAveragingError
+        If no images were averaged successfully.
 
     """
     images = _images_from_dir(path, image_formats=image_formats)
@@ -211,19 +217,21 @@ def single_directory_average(path, image_formats=('jpeg', 'png')):
 
     Parameters
     ----------
-        path : str
-            Path to directory.
-        image_formats : touple of str, optional
-            touple of image formats used by imghdr to determine what types
-            of images to average. Defaults: ('jpeg', 'png')
+    path : str
+        Path to directory.
+    image_formats : touple of str, optional
+        touple of image formats used by imghdr to determine what types
+        of images to average. Defaults: ('jpeg', 'png')
+
     Returns
     -------
-        dict
-            A dictionary with the following keys: name, red, green, blue.
+    dict
+        A dictionary with the following keys: name, red, green, blue.
+
     Raises
     ------
-        DirectoryAveragingError
-            If the directory could not be averaged.
+    DirectoryAveragingError
+        If the directory could not be averaged.
 
     """
     name = os.path.abspath(path).split(os.sep)[-1]
@@ -257,16 +265,17 @@ def nested_directory_average(path, image_formats=('jpeg', 'png')):
 
     Parameters
     ----------
-        path : str
-            path to directory
-        image_formats : touple of str, optional
-            touple of image formats used by imghdr to determine what types
-            of images to average. Defaults: ('jpeg', 'png')
+    path : str
+        path to directory
+    image_formats : touple of str, optional
+        touple of image formats used by imghdr to determine what types
+        of images to average. Defaults: ('jpeg', 'png')
+
     Returns
     -------
-        list
-            For each directory averaged, returns a list of dictionaries
-            each with the following keys: name, red, green, blue.
+    list
+        For each directory averaged, returns a list of dictionaries
+        each with the following keys: name, red, green, blue.
 
     """
     filtered_paths = _directories_with_images(

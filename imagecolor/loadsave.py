@@ -41,12 +41,13 @@ def results_line(results):
 
     Parameters
     ----------
-        results : list
-            a list of imagecolor results
+    results : list
+        a list of imagecolor results
+
     Returns
     -------
-        PIL.Image.object
-            linear image containing the results
+    PIL.Image.object
+        linear image containing the results
 
     """
     if not results:
@@ -71,14 +72,15 @@ def results_rectangle(results, aspectratio=(3, 2)):
 
     Parameters
     ----------
-        results : list
-            a list of imagecolor results.
-        aspectratio : tuple of int
-            the aspect ratio of the image being created. Format (3, 2)
+    results : list
+        a list of imagecolor results.
+    aspectratio : tuple of int
+        the aspect ratio of the image being created. Format (3, 2)
+
     Returns
     -------
-        PIL.Image.object
-            rectangular image containing the results.
+    PIL.Image.object
+        rectangular image containing the results.
 
     """
     if not results:
@@ -110,10 +112,10 @@ def results_save_csv(results, path):
 
     Parameters
     ----------
-        results : list
-            a list of imagecolor results.
-        path : str
-            the path to the file to be created.
+    results : list
+        a list of imagecolor results.
+    path : str
+        the path to the file to be created.
 
     """
     if not results:
@@ -138,12 +140,13 @@ def results_load_csv(path):
 
     Parameters
     ----------
-        path : str
-            the path to the file to be loaded.
+    path : str
+        the path to the file to be loaded.
+
     Returns
     -------
-        list
-            a list of imagecolor results.
+    list
+        a list of imagecolor results.
 
     """
     results = []
