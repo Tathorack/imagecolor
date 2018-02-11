@@ -175,7 +175,7 @@ def directory_average(path, image_formats=('jpeg', 'png')):
     list
         For each image averaged, returns a list of dictionaries
         each with the following keys: name, red, green, blue.
-    
+
     Raises
     ------
     ImageAveragingError
