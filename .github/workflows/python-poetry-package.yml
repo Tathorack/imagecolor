@@ -47,7 +47,7 @@ jobs:
     runs-on: ubuntu-latest
 
     environment:
-      name: testpypi
+      name: dev
       url: https://test.pypi.org/p/imagecolor
 
     permissions:
