@@ -1,0 +1,35 @@
+name: Build, analyze, test, and publish Python package
+
+on:
+  push:
+    branches: ["main", "dev"]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11"]
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install and configure Poetry
+      uses: snok/install-poetry@v1
+    - name: Install dependencies
+      run: |
+        poetry install
+    - name: Analysing code with pylint
+      run: |
+        poetry run pylint .
+    - name: Test with pytest
+      run: |
+       poetry run pytest
+    - name: Build poetry package
+      run: |
+        poetry build
