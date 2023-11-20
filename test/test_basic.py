@@ -19,9 +19,9 @@ def test_core_average_values(test_image_creator):
     for value in values:
         test_file = test_image_creator(value)
         result = imagecolor.core_average(test_file.name)
-        assert result['red'] == value
-        assert result['green'] == value
-        assert result['blue'] == value
+        assert result["red"] == value
+        assert result["green"] == value
+        assert result["blue"] == value
 
 
 def test_file_average_values(test_image_creator):
@@ -30,10 +30,10 @@ def test_file_average_values(test_image_creator):
     for value in values:
         test_file = test_image_creator(value)
         result = imagecolor.file_average(test_file.name)
-        assert result['name'] == test_file.name.split(os.sep)[-1]
-        assert result['red'] == value
-        assert result['green'] == value
-        assert result['blue'] == value
+        assert result["name"] == test_file.name.split(os.sep)[-1]
+        assert result["red"] == value
+        assert result["green"] == value
+        assert result["blue"] == value
 
 
 def test_directory_average_tempdir(test_directory_creator):
@@ -42,11 +42,11 @@ def test_directory_average_tempdir(test_directory_creator):
     test_directory = test_directory_creator(values)
     results = imagecolor.directory_average(test_directory.name)
     for result in results:
-        value = get_value_from_temp_name(result['name'])
-        assert result['name'] == '{}.png'.format(value)
-        assert result['red'] == value
-        assert result['green'] == value
-        assert result['blue'] == value
+        value = get_value_from_temp_name(result["name"])
+        assert result["name"] == "{}.png".format(value)
+        assert result["red"] == value
+        assert result["green"] == value
+        assert result["blue"] == value
 
 
 def test_single_directory_average_tempdir(test_directory_creator):
@@ -55,10 +55,10 @@ def test_single_directory_average_tempdir(test_directory_creator):
     test_directory = test_directory_creator(values)
     result = imagecolor.single_directory_average(test_directory.name)
     value = sum(values) // len(values)
-    assert result['name'] == test_directory.name.split(os.sep)[-1]
-    assert result['red'] == value
-    assert result['green'] == value
-    assert result['blue'] == value
+    assert result["name"] == test_directory.name.split(os.sep)[-1]
+    assert result["red"] == value
+    assert result["green"] == value
+    assert result["blue"] == value
 
 
 def test_nested_directory_average_tempdir(test_nested_directories_creator):
@@ -70,11 +70,11 @@ def test_nested_directory_average_tempdir(test_nested_directories_creator):
     print(os.path.exists(test_directory.name))
     results = imagecolor.nested_directory_average(test_directory.name)
     for result in results:
-        value = get_value_from_temp_name(result['name'])
-        assert result['name'].split('.')[0] == str(value)
-        assert result['red'] == value
-        assert result['green'] == value
-        assert result['blue'] == value
+        value = get_value_from_temp_name(result["name"])
+        assert result["name"].split(".")[0] == str(value)
+        assert result["red"] == value
+        assert result["green"] == value
+        assert result["blue"] == value
 
 
 def test_results_line_tempresults(test_results_creator):
@@ -89,13 +89,13 @@ def test_results_line_tempresults(test_results_creator):
     imagebytes = BytesIO()
     line.save(imagebytes, format="png")
     imagebytes.seek(0)
-    assert imghdr.what(imagebytes) == 'png'
+    assert imghdr.what(imagebytes) == "png"
     imagebytes.seek(0)
-    result = imagecolor.file_average(imagebytes, name='test', downsample=False)
+    result = imagecolor.file_average(imagebytes, name="test", downsample=False)
     value = sum(values) // len(values)
-    assert result['red'] == value
-    assert result['green'] == value
-    assert result['blue'] == value
+    assert result["red"] == value
+    assert result["green"] == value
+    assert result["blue"] == value
 
 
 def test_results_rectangle_tempresults(test_results_creator):
@@ -108,13 +108,13 @@ def test_results_rectangle_tempresults(test_results_creator):
     imagebytes = BytesIO()
     line.save(imagebytes, format="png")
     imagebytes.seek(0)
-    assert imghdr.what(imagebytes) == 'png'
+    assert imghdr.what(imagebytes) == "png"
     imagebytes.seek(0)
-    result = imagecolor.file_average(imagebytes, name='test')
+    result = imagecolor.file_average(imagebytes, name="test")
     value = sum(values) // len(values)
-    assert result['red'] == value
-    assert result['green'] == value
-    assert result['blue'] == value
+    assert result["red"] == value
+    assert result["green"] == value
+    assert result["blue"] == value
 
 
 def test_results_square_tempresults(test_results_creator):
@@ -127,13 +127,13 @@ def test_results_square_tempresults(test_results_creator):
     imagebytes = BytesIO()
     line.save(imagebytes, format="png")
     imagebytes.seek(0)
-    assert imghdr.what(imagebytes) == 'png'
+    assert imghdr.what(imagebytes) == "png"
     imagebytes.seek(0)
-    result = imagecolor.file_average(imagebytes, name='test')
+    result = imagecolor.file_average(imagebytes, name="test")
     value = sum(values) // len(values)
-    assert result['red'] == value
-    assert result['green'] == value
-    assert result['blue'] == value
+    assert result["red"] == value
+    assert result["green"] == value
+    assert result["blue"] == value
 
 
 def test_csv_save_and_load_from_tempfile(test_results_creator, test_csv):

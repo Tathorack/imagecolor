@@ -55,9 +55,11 @@ def results_line(results):
     image = Image.new("RGB", (len(results), 1), "hsl(0, 50%, 50%)")
     grid = image.load()
     for x in range(image.size[0]):  # pylint: disable=C0103
-        grid[x, 0] = (int(results[x]['red']),
-                      int(results[x]['green']),
-                      int(results[x]['blue']))
+        grid[x, 0] = (
+            int(results[x]["red"]),
+            int(results[x]["green"]),
+            int(results[x]["blue"]),
+        )
     return image
 
 
@@ -85,8 +87,7 @@ def results_rectangle(results, aspectratio=(3, 2)):
     """
     if not results:
         raise NoResultsError("No results to export!")
-    sidelength = int(floor(sqrt(
-        len(results) / (aspectratio[0] * aspectratio[1]))))
+    sidelength = int(floor(sqrt(len(results) / (aspectratio[0] * aspectratio[1]))))
     width = sidelength * aspectratio[0]
     height = sidelength * aspectratio[1]
     image = Image.new("RGB", (width, height), "hsl(0, 50%, 50%)")
@@ -94,9 +95,11 @@ def results_rectangle(results, aspectratio=(3, 2)):
     count = 0
     for y in range(image.size[1]):  # pylint: disable=C0103
         for x in range(image.size[0]):  # pylint: disable=C0103
-            grid[x, y] = (int(results[count]['red']),
-                          int(results[count]['green']),
-                          int(results[count]['blue']))
+            grid[x, y] = (
+                int(results[count]["red"]),
+                int(results[count]["green"]),
+                int(results[count]["blue"]),
+            )
             count += 1
     return image
 
@@ -120,12 +123,12 @@ def results_save_csv(results, path):
     """
     if not results:
         raise NoResultsError("No results to export!")
-    LOGGER.info('Opening CSV file %s for writing', path.split(os.sep)[-1])
-    with open(path, 'w') as fp:  # pylint: disable=C0103
+    LOGGER.info("Opening CSV file %s for writing", path.split(os.sep)[-1])
+    with open(path, "w") as fp:  # pylint: disable=C0103
         csv_file = csv.writer(fp)
-        csv_file.writerow(['File or Folder', 'Red', 'Green', 'Blue'])
+        csv_file.writerow(["File or Folder", "Red", "Green", "Blue"])
         for row in results:
-            line = [row['name'], row['red'], row['green'], row['blue']]
+            line = [row["name"], row["red"], row["green"], row["blue"]]
             csv_file.writerow(line)
 
 
@@ -150,22 +153,23 @@ def results_load_csv(path):
 
     """
     results = []
-    LOGGER.info('Opening CSV file %s for reading', path.split(os.sep)[-1])
+    LOGGER.info("Opening CSV file %s for reading", path.split(os.sep)[-1])
     with open(path, "rt") as fp:  # pylint: disable=C0103
-        csv_file = csv.reader(fp, delimiter=',')
+        csv_file = csv.reader(fp, delimiter=",")
         for row in csv_file:
-            if row[0] in ['File', 'Folder', 'File or Folder']:
-                LOGGER.info('Skipping header')
+            if row[0] in ["File", "Folder", "File or Folder"]:
+                LOGGER.info("Skipping header")
             else:
                 try:
-                    dict_line = {'name': row[0],
-                                 'red': int(row[1]),
-                                 'green': int(row[2]),
-                                 'blue': int(row[3])}
+                    dict_line = {
+                        "name": row[0],
+                        "red": int(row[1]),
+                        "green": int(row[2]),
+                        "blue": int(row[3]),
+                    }
                     results.append(dict_line)
                 except (ValueError, TypeError):
-                    LOGGER.exception('results_load_csv Exception',
-                                     exc_info=True)
+                    LOGGER.exception("results_load_csv Exception", exc_info=True)
     if results:
         return results
     raise NoResultsError("No results loaded!")

@@ -68,13 +68,12 @@ def core_average(image, downsample=True, max_size=100, alpha_threshold=245):
     LOGGER.debug("core_average called")
     try:
         image = Image.open(image)
-        LOGGER.debug('Image opened. Dimensions %d x %d',
-                     image.size[0], image.size[1])
-        if ((image.size[0] > max_size or image.size[1] > max_size)
-                and downsample is True):
+        LOGGER.debug("Image opened. Dimensions %d x %d", image.size[0], image.size[1])
+        if (
+            image.size[0] > max_size or image.size[1] > max_size
+        ) and downsample is True:
             image.thumbnail((max_size, max_size))
-            LOGGER.debug('Image resized to %d x %d',
-                         image.size[0], image.size[1])
+            LOGGER.debug("Image resized to %d x %d", image.size[0], image.size[1])
         # load the pixels of the image into a 2D array.
         grid = image.load()
         pixelcount = 0
@@ -94,20 +93,20 @@ def core_average(image, downsample=True, max_size=100, alpha_threshold=245):
                     pixelcount += 1
         # Get the average of each channel
         result = [value // pixelcount for value in pixelaccum]
-        LOGGER.debug('average result: R=%d, G=%d, B=%d', *result)
-        return {'red': result[0], 'green': result[1], 'blue': result[2]}
+        LOGGER.debug("average result: R=%d, G=%d, B=%d", *result)
+        return {"red": result[0], "green": result[1], "blue": result[2]}
     except ZeroDivisionError:  # No pixels averaged
-        LOGGER.debug('Traceback', exc_info=True)
+        LOGGER.debug("Traceback", exc_info=True)
         raise ImageAveragingError(
             "No pixels averaged in image! If the image has transperency, "
-            "try raising the alpha_threshold.")
+            "try raising the alpha_threshold."
+        )
     except TypeError:  # single channel image
-        LOGGER.debug('Traceback', exc_info=True)
+        LOGGER.debug("Traceback", exc_info=True)
         raise ImageAveragingError("Single channel image! Try an RGB image.")
 
 
-def file_average(image, name=None, downsample=True,
-                 max_size=100, alpha_threshold=245):
+def file_average(image, name=None, downsample=True, max_size=100, alpha_threshold=245):
     """Average a single image and keep track of its file name.
 
     Averages a single image from a file or file-like object. name is
@@ -146,15 +145,15 @@ def file_average(image, name=None, downsample=True,
     """
     if name is None:
         name = image.split(os.sep)[-1]
-    LOGGER.debug('Image name: %s', name)
-    result = core_average(image, downsample=downsample,
-                          max_size=max_size,
-                          alpha_threshold=alpha_threshold)
-    result['name'] = name
+    LOGGER.debug("Image name: %s", name)
+    result = core_average(
+        image, downsample=downsample, max_size=max_size, alpha_threshold=alpha_threshold
+    )
+    result["name"] = name
     return result
 
 
-def directory_average(path, image_formats=('jpeg', 'png')):
+def directory_average(path, image_formats=("jpeg", "png")):
     """Average all images in a directory.
 
     Accepts the path to a directory and averages each individual image.
@@ -186,27 +185,30 @@ def directory_average(path, image_formats=('jpeg', 'png')):
     results = []
     with concurrent.futures.ProcessPoolExecutor() as executor:
         # Create a list of futures for each image to be averaged.
-        future_to_image = [executor.submit(file_average, image)
-                           for image in images]
+        future_to_image = [executor.submit(file_average, image) for image in images]
         # As the futures are completed access the results.
         for future in concurrent.futures.as_completed(future_to_image):
             try:
                 data = future.result()
-                LOGGER.debug('future.result: name=%s R=%d, G=%d, B=%d',
-                             data['name'], data['red'],
-                             data['green'], data['blue'])
+                LOGGER.debug(
+                    "future.result: name=%s R=%d, G=%d, B=%d",
+                    data["name"],
+                    data["red"],
+                    data["green"],
+                    data["blue"],
+                )
                 # If the result is valid append it to results.
                 results.append(data)
             except ImageAveragingError as exc:
                 # If file_average failed, catch exceptions and log them.
-                LOGGER.warning('file_average failed: %s', exc)
-                LOGGER.debug('Traceback', exc_info=True)
+                LOGGER.warning("file_average failed: %s", exc)
+                LOGGER.debug("Traceback", exc_info=True)
     if results:
         return results
     raise ImageAveragingError("No images successfully averaged!")
 
 
-def single_directory_average(path, image_formats=('jpeg', 'png')):
+def single_directory_average(path, image_formats=("jpeg", "png")):
     """Average all images in a directory into a single average.
 
     Accepts the path to a directory and averages each all images together
@@ -237,23 +239,31 @@ def single_directory_average(path, image_formats=('jpeg', 'png')):
     name = os.path.abspath(path).split(os.sep)[-1]
     results = directory_average(path, image_formats=image_formats)
     imagecount = 0
-    accum = {'red': 0, 'green': 0, 'blue': 0}
+    accum = {"red": 0, "green": 0, "blue": 0}
     for image in results:
-        accum['red'] += image['red']
-        accum['green'] += image['green']
-        accum['blue'] += image['blue']
+        accum["red"] += image["red"]
+        accum["green"] += image["green"]
+        accum["blue"] += image["blue"]
         imagecount += 1
     if imagecount:
         result = {key: value // imagecount for key, value in accum.items()}
-        LOGGER.debug('single_directory_average result: '
-                     'Name=%s, R=%d, G=%d, B=%d', name,
-                     result['red'], result['green'], result['blue'])
-        return {'name': name, 'red': result['red'],
-                'green': result['green'], 'blue': result['blue']}
-    raise DirectoryAveragingError('Unable to average directory!')
+        LOGGER.debug(
+            "single_directory_average result: " "Name=%s, R=%d, G=%d, B=%d",
+            name,
+            result["red"],
+            result["green"],
+            result["blue"],
+        )
+        return {
+            "name": name,
+            "red": result["red"],
+            "green": result["green"],
+            "blue": result["blue"],
+        }
+    raise DirectoryAveragingError("Unable to average directory!")
 
 
-def nested_directory_average(path, image_formats=('jpeg', 'png')):
+def nested_directory_average(path, image_formats=("jpeg", "png")):
     """Averages all subdirectories into a directory average for each directory.
 
     Accepts the path to a directory and walks all the enclosed
@@ -278,16 +288,14 @@ def nested_directory_average(path, image_formats=('jpeg', 'png')):
         each with the following keys: name, red, green, blue.
 
     """
-    filtered_paths = _directories_with_images(
-        path, image_formats=image_formats)
+    filtered_paths = _directories_with_images(path, image_formats=image_formats)
     results = []
     for dpath in filtered_paths:
         try:
-            results.append(single_directory_average(
-                dpath, image_formats=image_formats))
+            results.append(single_directory_average(dpath, image_formats=image_formats))
         except DirectoryAveragingError as exc:
-            LOGGER.warning('single_directory_average failed: %s', exc)
-            LOGGER.debug('Traceback', exc_info=True)
+            LOGGER.warning("single_directory_average failed: %s", exc)
+            LOGGER.debug("Traceback", exc_info=True)
     if results:
         return results
-    raise DirectoryAveragingError('Unable to average directories')
+    raise DirectoryAveragingError("Unable to average directories")
