@@ -23,6 +23,8 @@ jobs:
       uses: snok/install-poetry@93ada01c735cc8a383ce0ce2ae205a21c415379b
     - name: Install dependencies
       run: poetry install
+    - name: Check code format
+      run: poetry run black . --check
     - name: Analysing code with pylint
       run: poetry run pylint .
     - name: Test with pytest

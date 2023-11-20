@@ -26,6 +26,8 @@ jobs:
       run: poetry run pytest
     - name: Build poetry package
       run: poetry build
+    - name: Check code format
+      run: poetry run black . --check
     - name: Store the distribution packages
       uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32
       with:
